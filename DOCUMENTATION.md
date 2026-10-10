@@ -1,4 +1,4 @@
-# 📋 Documentation - StreamHub (Solarfin) - Branch AppMobile
+# 📋 Documentation - Solarfin
 
 **Version:** 2.0 (AppMobile PWA)  
 **Description:** Application mobile progressive (PWA) pour catalogue de films et séries avec recommandations, filtrage avancé et intégration Overseerr/Moonfin.
@@ -17,7 +17,7 @@
 
 ## 🎬 Vue d'ensemble
 
-**StreamHub AppMobile** est une application web progressive (PWA) qui fonctionne sur mobile et desktop avec mode hors ligne. Elle permet de :
+**Solarfin AppMobile** est une application web progressive (PWA) qui fonctionne sur mobile et desktop avec mode hors ligne. Elle permet de :
 - Consulter les tendances TMDB (Films/Séries)
 - Filtrer par plateforme (Netflix, Prime, Disney+, Apple TV+, Canal+, Paramount+, **OCS**, **HBO**)
 - Filtrer par genres et sources de recommandations
