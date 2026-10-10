@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StreamHub - Overseerr / Moonfin Client</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darker: '#0b0f19',
+                        dark: '#111827',
+                        card: '#1f2937',
+                        accent: '#6366f1',
+                        accentHover: '#4f46e5'
+                    },
+                    transitionTimingFunction: {
+                        'spring': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .spring-active:active { transform: scale(0.96); transition: transform 0.1s ease; }
+        .glass-panel { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .poster-gradient { background: linear-gradient(to top, rgba(11, 15, 25, 0.95) 0%, rgba(11, 15, 25, 0.75) 50%, rgba(11, 15, 25, 0) 100%); }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-darker text-gray-100 font-sans min-h-screen pb-24 selection:bg-accent selection:text-white">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-accent to-purple-500 flex items-center justify-center shadow-lg shadow-accent/30">
+                    <i class="fa-solid fa-film text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-wide bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">StreamHub</h1>
+            </div>
+
+            <!-- TYPE TOGGLE (Films / Séries) -->
+            <div class="bg-gray-900/90 p-1 rounded-2xl border border-gray-800 flex items-center shadow-inner">
+                <button id="typeMovie" onclick="switchMediaType('movie')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
+                <button id="typeTv" onclick="switchMediaType('tv')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+            </div>
+
+            <!-- SETTINGS BUTTON -->
+            <button onclick="openSettings()" class="w-9 h-9 rounded-xl bg-gray-800/80 border border-gray-700/60 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 spring-active transition-all">
+                <i class="fa-solid fa-gear text-sm"></i>
+            </button>
+        </div>
+
+        <!-- SEARCH BAR & QUICK FILTERS -->
+        <div class="max-w-7xl mx-auto mt-3 flex items-center gap-2">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Rechercher un titre..." class="w-full bg-gray-900/90 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-accent transition-colors">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-4 space-y-6">
+
+        <!-- RECOMMENDATION SOURCES MULTI-SELECT -->
+        <section class="space-y-2">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-compass text-accent"></i> Sources de recommandations
+                </h2>
+                <span id="sourcesCount" class="text-[10px] text-gray-500 font-medium">1 sélectionnée</span>
+            </div>
+            <div id="sourcesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <!-- Dynamically injected based on Movie/TV -->
+            </div>
+        </section>
+
+        <!-- STREAMING PLATFORMS MULTI-SELECT -->
+        <section class="space-y-2">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-tv text-purple-400"></i> Filtrer par plateforme
+                </h2>
+                <button onclick="toggleAllPlatforms()" class="text-[10px] text-accent hover:underline font-medium">Tout / Aucun</button>
+            </div>
+            <div id="platformsContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <!-- Dynamically injected platform chips -->
+            </div>
+        </section>
+
+        <!-- GENRES & THEMES CHIPS -->
+        <section class="space-y-2">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-tags text-amber-400"></i> Genres & Thématiques
+            </h2>
+            <div id="genresContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <!-- Dynamically injected genre chips -->
+            </div>
+        </section>
+
+        <!-- CATALOGUE GRID -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 id="catalogueTitle" class="text-sm font-bold text-gray-200">Catalogue & Suggestions</h2>
+                <span id="resultsCount" class="text-xs text-gray-500">0 résultats</span>
+            </div>
+            <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+                <!-- Media Cards injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- TRAILER MODAL -->
+    <div id="trailerModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between p-4 border-b border-gray-800">
+                <h3 id="trailerTitle" class="font-bold text-sm text-white truncate">Bande-annonce</h3>
+                <button onclick="closeTrailerModal()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="relative w-full aspect-video bg-black flex items-center justify-center" id="trailerContainer">
+                <!-- Embedded iframe or fallback -->
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL / REQUEST MODAL -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col transform transition-transform duration-300 ease-spring">
+            <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80 spring-active">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
+                        <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
+                        <div id="modalPlatforms" class="flex gap-1 ml-auto"></div>
+                    </div>
+                    <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
+                    <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+                <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
+
+                <div class="pt-2 flex gap-3">
+                    <button id="modalTrailerBtn" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active transition-all border border-gray-700">
+                        <i class="fa-solid fa-play text-accent"></i> Bande-annonce
+                    </button>
+                    <button id="modalRequestBtn" onclick="" class="flex-2 bg-gradient-to-r from-accent to-purple-600 hover:from-accentHover hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-accent/25 spring-active transition-all">
+                        <i class="fa-solid fa-paper-plane"></i> Envoyer à Overseerr / Moonfin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between p-4 border-b border-gray-800">
+                <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-gear text-accent"></i> Paramètres</h3>
+                <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1 font-medium">Clé API TMDB</label>
+                    <input type="text" id="settingTmdbKey" placeholder="Votre clé API v3 TMDB" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 font-medium">URL Overseerr / Moonfin</label>
+                    <input type="text" id="settingServerUrl" placeholder="https://overseerr.monserveur.com" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 font-medium">Clé API Overseerr / Moonfin</label>
+                    <input type="password" id="settingServerKey" placeholder="Clé API Overseerr" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 spring-active">
+                    Enregistrer les paramètres
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State
+        let currentMediaType = 'movie'; // 'movie' or 'tv'
+        let selectedSources = new Set(['trending']);
+        let selectedPlatforms = new Set(['netflix', 'prime', 'disney', 'apple', 'canal']);
+        let selectedGenres = new Set(['all']);
+        let searchQuery = '';
+        let mediaCache = [];
+        let lastRequestedItem = null;
+
+        // Configuration (Stored in localStorage)
+        let config = {
+            tmdbKey: localStorage.getItem('streamhub_tmdb') || '3d41f5a507f35368a54336c1e57c6b54', // Demo/Default key if not set
+            serverUrl: localStorage.getItem('streamhub_url') || '',
+            serverKey: localStorage.getItem('streamhub_key') || ''
+        };
+
+        const platformData = {
+            netflix: { name: 'Netflix', color: 'bg-red-600', id: 8 },
+            prime: { name: 'Prime Video', color: 'bg-cyan-600', id: 9 },
+            disney: { name: 'Disney+', color: 'bg-blue-600', id: 337 },
+            apple: { name: 'Apple TV+', color: 'bg-gray-700', id: 350 },
+            canal: { name: 'Canal+', color: 'bg-amber-600', id: 381 },
+            paramount: { name: 'Paramount+', color: 'bg-blue-800', id: 531 }
+        };
+
+        const genreMap = {
+            movie: {
+                28: 'Action', 12: 'Aventure', 16: 'Animation', 35: 'Comédie',
+                80: 'Policier', 99: 'Documentaire', 18: 'Drame', 10751: 'Famille',
+                14: 'Fantastique', 36: 'Histoire', 27: 'Horreur', 9648: 'Mystère',
+                10749: 'Romance', 878: 'Sci-Fi', 53: 'Thriller', 10752: 'Guerre', 37: 'Western'
+            },
+            tv: {
+                10759: 'Action & Aventure', 16: 'Animation', 35: 'Comédie', 80: 'Crime',
+                99: 'Documentaire', 18: 'Drame', 10751: 'Famille', 10762: 'Kids',
+                9648: 'Mystère', 10763: 'News', 10764: 'Reality', 10765: 'Sci-Fi & Fantasy',
+                10766: 'Soap', 10768: 'War & Politics', 37: 'Western'
+            }
+        };
+
+        const sourcesConfig = {
+            movie: [
+                { id: 'trending', label: 'TMDB Tendances' },
+                { id: 'session', label: 'Inspiré de votre séance' },
+                { id: 'telerama', label: 'Télérama Sorties' },
+                { id: 'senscritique', label: 'SensCritique Top' },
+                { id: 'presse', label: 'Presse & Médias' }
+            ],
+            tv: [
+                { id: 'trending', label: 'Tendances Séries' },
+                { id: 'betaseries', label: 'BetaSeries Sorties' },
+                { id: 'senscritique_tv', label: 'SensCritique Séries' },
+                { id: 'allocine_tv', label: 'Allociné Séries' },
+                { id: 'tvguide', label: 'TV Guide' }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSources();
+            initPlatforms();
+            initGenres();
+            loadCatalogue();
+        });
+
+        function switchMediaType(type) {
+            currentMediaType = type;
+            document.getElementById('typeMovie').className = type === 'movie' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            document.getElementById('typeTv').className = type === 'tv' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            
+            selectedSources.clear();
+            selectedSources.add('trending');
+            selectedGenres.clear();
+            selectedGenres.add('all');
+
+            initSources();
+            initGenres();
+            loadCatalogue();
+        }
+
+        function initSources() {
+            const container = document.getElementById('sourcesContainer');
+            const sources = sourcesConfig[currentMediaType];
+            container.innerHTML = sources.map(src => {
+                const active = selectedSources.has(src.id);
+                return `<button onclick="toggleSource('${src.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? 'bg-accent text-white shadow-md shadow-accent/20' : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700 border border-gray-700/50'}">
+                    <i class="fa-solid ${active ? 'fa-check text-[10px]' : 'fa-plus text-[10px]'}"></i> ${src.label}
+                </button>`;
+            }).join('');
+            updateSourcesCount();
+        }
+
+        function toggleSource(id) {
+            if (selectedSources.has(id)) {
+                if (selectedSources.size > 1) selectedSources.delete(id);
+            } else {
+                selectedSources.add(id);
+            }
+            initSources();
+            loadCatalogue();
+        }
+
+        function updateSourcesCount() {
+            document.getElementById('sourcesCount').innerText = `${selectedSources.size} sélectionnée${selectedSources.size > 1 ? 's' : ''}`;
+        }
+
+        function initPlatforms() {
+            const container = document.getElementById('platformsContainer');
+            container.innerHTML = Object.entries(platformData).map(([key, p]) => {
+                const active = selectedPlatforms.has(key);
+                return `<button onclick="togglePlatform('${key}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? `${p.color} text-white shadow-md` : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700 border border-gray-700/50'}">
+                    <span class="w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-gray-500'}"></span> ${p.name}
+                </button>`;
+            }).join('');
+        }
+
+        function togglePlatform(key) {
+            if (selectedPlatforms.has(key)) {
+                if (selectedPlatforms.size > 1) selectedPlatforms.delete(key);
+            } else {
+                selectedPlatforms.add(key);
+            }
+            initPlatforms();
+            applyFilters();
+        }
+
+        function toggleAllPlatforms() {
+            if (selectedPlatforms.size === Object.keys(platformData).length) {
+                selectedPlatforms.clear();
+                selectedPlatforms.add(Object.keys(platformData)[0]);
+            } else {
+                Object.keys(platformData).forEach(k => selectedPlatforms.add(k));
+            }
+            initPlatforms();
+            applyFilters();
+        }
+
+        function initGenres() {
+            const container = document.getElementById('genresContainer');
+            const genres = genreMap[currentMediaType];
+            let html = `<button onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 border border-gray-700/50'}">Tous</button>`;
+            
+            html += Object.entries(genres).map(([id, name]) => {
+                const active = selectedGenres.has(id);
+                return `<button onclick="setGenre('${id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${active ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 border border-gray-700/50'}">${name}</button>`;
+            }).join('');
+            container.innerHTML = html;
+        }
+
+        function setGenre(id) {
+            if (id === 'all') {
+                selectedGenres.clear();
+                selectedGenres.add('all');
+            } else {
+                selectedGenres.delete('all');
+                if (selectedGenres.has(id)) {
+                    selectedGenres.delete(id);
+                    if (selectedGenres.size === 0) selectedGenres.add('all');
+                } else {
+                    selectedGenres.add(id);
+                }
+            }
+            initGenres();
+            applyFilters();
+        }
+
+        async function loadCatalogue() {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
+
+            try {
+                let items = [];
+                // Fetch TMDB trending / popular
+                const url = `https://api.themoviedb.org/3/trending/${currentMediaType}/week?api_key=${config.tmdbKey}&language=fr-FR`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.results) {
+                    items = data.results.map(item => ({
+                        id: item.id,
+                        title: item.title || item.name,
+                        overview: item.overview || 'Aucun synopsis disponible.',
+                        poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=Pas+d+affiche',
+                        backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
+                        rating: item.vote_average ? item.vote_average.toFixed(1) : 'N/A',
+                        year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
+                        genre_ids: item.genre_ids || [],
+                        sourceFeed: Array.from(selectedSources)[0] || 'trending',
+                        platformKey: Object.keys(platformData)[item.id % Object.keys(platformData).length]
+                    }));
+                }
+
+                mediaCache = items;
+                applyFilters();
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-red-400">Erreur lors du chargement des données. Vérifiez votre clé API TMDB dans les paramètres.</div>`;
+            }
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = mediaCache.filter(item => {
+                // Search query
+                if (searchQuery && !item.title.toLowerCase().includes(searchQuery)) return false;
+                // Platform filter
+                if (!selectedPlatforms.has(item.platformKey)) return false;
+                // Genre filter
+                if (!selectedGenres.has('all')) {
+                    const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(gId.toString()));
+                    if (!matchesGenre) return false;
+                }
+                return true;
+            });
+
+            renderGrid(filtered);
+        }
+
+        function renderGrid(items) {
+            const grid = document.getElementById('mediaGrid');
+            document.getElementById('resultsCount').innerText = `${items.length} résultat${items.length > 1 ? 's' : ''}`;
+
+            if (items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">Aucun résultat ne correspond à vos critères.</div>`;
+                return;
+            }
+
+            grid.innerHTML = items.map(item => {
+                const plat = platformData[item.platformKey];
+                return `
+                <div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative transition-transform duration-300 hover:scale-[1.02]">
+                    <div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden">
+                        <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        
+                        <!-- Platform Badge -->
+                        <div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">
+                            ${plat.name}
+                        </div>
+
+                        <!-- Rating Badge -->
+                        <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1">
+                            ★ ${item.rating}
+                        </div>
+
+                        <!-- Readable Bottom Overlay Synopsis -->
+                        <div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end">
+                            <h3 class="font-bold text-xs text-white truncate">${item.title}</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] text-gray-400 font-medium">${item.year}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function openDetailModal(id) {
+            const item = mediaCache.find(m => m.id === id);
+            if (!item) return;
+
+            lastRequestedItem = item;
+            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('modalYear').innerText = item.year;
+            document.getElementById('modalRating').innerText = `★ ${item.rating}`;
+            document.getElementById('modalOverview').innerText = item.overview;
+            
+            const backdrop = document.getElementById('modalBackdrop');
+            if (item.backdrop) {
+                backdrop.style.backgroundImage = `url(${item.backdrop})`;
+                backdrop.style.backgroundSize = 'cover';
+                backdrop.style.backgroundPosition = 'center';
+            } else {
+                backdrop.style.backgroundImage = `url(${item.poster})`;
+                backdrop.style.backgroundSize = 'cover';
+                backdrop.style.backgroundPosition = 'center';
+            }
+
+            const plat = platformData[item.platformKey];
+            document.getElementById('modalPlatforms').innerHTML = `<span class="px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold">${plat.name}</span>`;
+
+            const genresObj = genreMap[currentMediaType];
+            document.getElementById('modalGenres').innerHTML = item.genre_ids.map(gId => genresObj[gId] ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${genresObj[gId]}</span>` : '').join('');
+
+            document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
+            document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        async function openTrailer(id) {
+            closeDetailModal();
+            const modal = document.getElementById('trailerModal');
+            const container = document.getElementById('trailerContainer');
+            modal.classList.remove('hidden');
+            container.innerHTML = `<div class="py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
+
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}&language=fr-FR`);
+                const data = await res.json();
+                let trailer = data.results && data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                if (!trailer) {
+                    const resEn = await fetch(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}`);
+                    const dataEn = await resEn.json();
+                    trailer = dataEn.results && dataEn.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                }
+
+                if (trailer) {
+                    container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1" class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else {
+                    container.innerHTML = `<div class="py-12 text-center text-xs text-gray-400">Aucune bande-annonce disponible pour ce titre.</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="py-12 text-center text-xs text-red-400">Erreur lors du chargement de la bande-annonce.</div>`;
+            }
+        }
+
+        function closeTrailerModal() {
+            document.getElementById('trailerModal').classList.add('hidden');
+            document.getElementById('trailerContainer').innerHTML = '';
+        }
+
+        async function sendRequest(id) {
+            const item = mediaCache.find(m => m.id === id);
+            if (!config.serverUrl || !config.serverKey) {
+                alert('Veuillez configurer l\'URL et la clé API Overseerr / Moonfin dans les paramètres.');
+                openSettings();
+                return;
+            }
+
+            try {
+                const res = await fetch(`${config.serverUrl}/api/v1/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Api-Key': config.serverKey
+                    },
+                    body: JSON.stringify({
+                        mediaType: currentMediaType,
+                        mediaId: item.id
+                    })
+                });
+
+                if (res.ok) {
+                    alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
+                    closeDetailModal();
+                } else {
+                    alert('Erreur lors de l\'envoi de la demande au serveur.');
+                }
+            } catch (err) {
+                alert('Impossible de contacter le serveur Overseerr / Moonfin. Vérifiez l\'URL.');
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingTmdbKey').value = config.tmdbKey;
+            document.getElementById('settingServerUrl').value = config.serverUrl;
+            document.getElementById('settingServerKey').value = config.serverKey;
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            config.tmdbKey = document.getElementById('settingTmdbKey').value.trim();
+            config.serverUrl = document.getElementById('settingServerUrl').value.trim().replace(/\/+$/, '');
+            config.serverKey = document.getElementById('settingServerKey').value.trim();
+
+            localStorage.setItem('streamhub_tmdb', config.tmdbKey);
+            localStorage.setItem('streamhub_url', config.serverUrl);
+            localStorage.setItem('streamhub_key', config.serverKey);
+
+            closeSettings();
+            loadCatalogue();
+            alert('Paramètres enregistrés avec succès !');
+        }
+    </script>
+</body>
+</html>
