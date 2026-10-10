@@ -31,10 +31,10 @@
         .poster-gradient { background: linear-gradient(to top, rgba(11, 15, 25, 0.95) 0%, rgba(11, 15, 25, 0.75) 50%, rgba(11, 15, 25, 0) 100%); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .aria-pressed { outline: 2px solid rgba(99,102,241,0.7); }
     </style>
 </head>
 <body class="bg-darker text-gray-100 font-sans min-h-screen pb-24 selection:bg-accent selection:text-white">
-
     <header class="sticky top-0 z-40 glass-panel border-b border-gray-800 px-4 py-3">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -45,11 +45,11 @@
             </div>
 
             <div class="bg-gray-900/90 p-1 rounded-2xl border border-gray-800 flex items-center shadow-inner">
-                <button id="typeMovie" onclick="switchMediaType('movie')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
-                <button id="typeTv" onclick="switchMediaType('tv')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+                <button id="typeMovie" type="button" aria-label="Afficher les films" aria-pressed="true" onclick="switchMediaType('movie')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
+                <button id="typeTv" type="button" aria-label="Afficher les séries" aria-pressed="false" onclick="switchMediaType('tv')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
             </div>
 
-            <button onclick="openSettings()" class="w-9 h-9 rounded-xl bg-gray-800/80 border border-gray-700/60 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 shadow-md spring-active">
+            <button type="button" aria-label="Ouvrir les paramètres" onclick="openSettings()" class="w-9 h-9 rounded-xl bg-gray-800/80 border border-gray-700/60 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 shadow-md spring-active">
                 <i class="fa-solid fa-gear text-sm"></i>
             </button>
         </div>
@@ -57,13 +57,12 @@
         <div class="max-w-7xl mx-auto mt-3 flex items-center gap-2">
             <div class="relative flex-1">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Rechercher un titre..." class="w-full bg-gray-900/90 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-accent/70">
+                <input type="text" id="searchInput" aria-label="Rechercher un titre" oninput="handleSearch()" placeholder="Rechercher un titre..." class="w-full bg-gray-900/90 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-accent">
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-4 space-y-6">
-
         <section class="space-y-2">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
@@ -71,7 +70,7 @@
                 </h2>
                 <span id="sourcesCount" class="text-[10px] text-gray-500 font-medium">1 sélectionnée</span>
             </div>
-            <div id="sourcesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            <div id="sourcesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Sources de recommandations"></div>
         </section>
 
         <section class="space-y-2">
@@ -79,24 +78,24 @@
                 <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-tv text-purple-400"></i> Filtrer par plateforme
                 </h2>
-                <button onclick="toggleAllPlatforms()" class="text-[10px] text-accent hover:underline font-medium">Tout / Aucun</button>
+                <button type="button" aria-label="Tout ou aucun plateforme" onclick="toggleAllPlatforms()" class="text-[10px] text-accent hover:underline font-medium">Tout / Aucun</button>
             </div>
-            <div id="platformsContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            <div id="platformsContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Plateformes"></div>
         </section>
 
         <section class="space-y-2">
             <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
                 <i class="fa-solid fa-tags text-amber-400"></i> Genres & Thématiques
             </h2>
-            <div id="genresContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            <div id="genresContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Genres"></div>
         </section>
 
         <section class="space-y-3">
             <div class="flex items-center justify-between">
                 <h2 id="catalogueTitle" class="text-sm font-bold text-gray-200">Catalogue & Suggestions</h2>
-                <span id="resultsCount" class="text-xs text-gray-500">0 résultats</span>
+                <span id="resultsCount" class="text-xs text-gray-500">0 résultat</span>
             </div>
-            <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5"></div>
+            <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5" aria-live="polite"></div>
         </section>
     </main>
 
@@ -104,7 +103,7 @@
         <div class="bg-gray-900 border border-gray-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-4 border-b border-gray-800">
                 <h3 id="trailerTitle" class="font-bold text-sm text-white truncate">Bande-annonce</h3>
-                <button onclick="closeTrailerModal()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
+                <button type="button" aria-label="Fermer la bande-annonce" onclick="closeTrailerModal()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -113,10 +112,10 @@
     </div>
 
     <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col transform transition-transform duration-300">
+        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
+                <button type="button" aria-label="Fermer la fiche" onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -125,7 +124,7 @@
                     <div class="flex items-center gap-2 mb-1">
                         <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
                         <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
-                        <div id="modalPlatforms" class="flex gap-1 ml-auto"></div>
+                        <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
                     </div>
                     <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
                     <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
@@ -133,10 +132,10 @@
                 <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
 
                 <div class="pt-2 flex gap-3">
-                    <button id="modalTrailerBtn" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2">
+                    <button id="modalTrailerBtn" type="button" aria-label="Voir la bande-annonce" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
                         <i class="fa-solid fa-play text-accent"></i> Bande-annonce
                     </button>
-                    <button id="modalRequestBtn" onclick="" class="flex-2 bg-gradient-to-r from-accent to-purple-600 hover:from-accentHover hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2">
+                    <button id="modalRequestBtn" type="button" aria-label="Envoyer la demande à Overseerr ou Moonfin" onclick="" class="flex-2 bg-gradient-to-r from-accent to-purple-600 hover:from-accentHover hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
                         <i class="fa-solid fa-paper-plane"></i> Envoyer à Overseerr / Moonfin
                     </button>
                 </div>
@@ -148,7 +147,7 @@
         <div class="bg-gray-900 border border-gray-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-4 border-b border-gray-800">
                 <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-gear text-accent"></i> Paramètres</h3>
-                <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
+                <button type="button" aria-label="Fermer les paramètres" onclick="closeSettings()" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -165,7 +164,7 @@
                     <label class="block text-gray-400 mb-1 font-medium">Clé API Overseerr / Moonfin</label>
                     <input type="password" id="settingServerKey" placeholder="Clé API Overseerr" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
                 </div>
-                <button onclick="saveSettings()" class="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 spring-active">
+                <button type="button" aria-label="Enregistrer les paramètres" onclick="saveSettings()" class="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 spring-active">
                     Enregistrer les paramètres
                 </button>
             </div>
@@ -180,12 +179,10 @@
             const valueChars = Array.from(value);
             const passChars = Array.from(pass);
             let encoded = '';
-
             for (let i = 0; i < valueChars.length; i++) {
                 const charCode = valueChars[i].charCodeAt(0) ^ passChars[i % passChars.length].charCodeAt(0);
                 encoded += String.fromCharCode(charCode);
             }
-
             return btoa(encoded);
         }
 
@@ -195,12 +192,10 @@
                 const decoded = atob(value);
                 const passChars = Array.from(pass);
                 let result = '';
-
                 for (let i = 0; i < decoded.length; i++) {
                     const charCode = decoded.charCodeAt(i) ^ passChars[i % passChars.length].charCodeAt(0);
                     result += String.fromCharCode(charCode);
                 }
-
                 return result;
             } catch (e) {
                 return '';
@@ -216,13 +211,27 @@
             return raw ? xorDecrypt(raw, STORAGE_PASS) : '';
         }
 
+        function saveJsonValue(name, value) {
+            localStorage.setItem(name, JSON.stringify(value));
+        }
+
+        function loadJsonValue(name, fallback = []) {
+            try {
+                const raw = localStorage.getItem(name);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
         let currentMediaType = 'movie';
         let selectedSources = new Set(['trending']);
-        let selectedPlatforms = new Set(['netflix', 'prime', 'disney', 'apple', 'canal']);
+        let selectedPlatforms = new Set(['netflix', 'prime', 'disney', 'apple', 'canal', 'ocs', 'hbo']);
         let selectedGenres = new Set(['all']);
         let searchQuery = '';
         let mediaCache = [];
         let lastRequestedItem = null;
+        let searchTimeout = null;
 
         let config = {
             tmdbKey: loadEncryptedValue('streamhub_tmdb') || '',
@@ -231,12 +240,14 @@
         };
 
         const platformData = {
-            netflix: { name: 'Netflix', color: 'bg-red-600', id: 8 },
-            prime: { name: 'Prime Video', color: 'bg-cyan-600', id: 9 },
-            disney: { name: 'Disney+', color: 'bg-blue-600', id: 337 },
-            apple: { name: 'Apple TV+', color: 'bg-gray-700', id: 350 },
-            canal: { name: 'Canal+', color: 'bg-amber-600', id: 381 },
-            paramount: { name: 'Paramount+', color: 'bg-blue-800', id: 531 }
+            netflix: { name: 'Netflix', color: 'bg-red-600', providerIds: [8], aliases: ['netflix'] },
+            prime: { name: 'Prime Video', color: 'bg-cyan-600', providerIds: [9], aliases: ['prime video', 'amazon prime video'] },
+            disney: { name: 'Disney+', color: 'bg-blue-600', providerIds: [337], aliases: ['disney+', 'disney plus'] },
+            apple: { name: 'Apple TV+', color: 'bg-gray-700', providerIds: [350], aliases: ['apple tv+', 'apple tv'] },
+            canal: { name: 'Canal+', color: 'bg-amber-600', providerIds: [381], aliases: ['canal+', 'canal'] },
+            paramount: { name: 'Paramount+', color: 'bg-blue-800', providerIds: [531], aliases: ['paramount+', 'paramount plus'] },
+            ocs: { name: 'OCS', color: 'bg-violet-600', providerIds: [228, 252, 267], aliases: ['ocs', 'ocs go'] },
+            hbo: { name: 'HBO', color: 'bg-yellow-600', providerIds: [118, 384, 435], aliases: ['hbo', 'hbo max', 'max'] }
         };
 
         const genreMap = {
@@ -271,7 +282,109 @@
             ]
         };
 
+        function restoreSelections() {
+            const savedSources = loadJsonValue('streamhub_sources', ['trending']);
+            const savedPlatforms = loadJsonValue('streamhub_platforms', Object.keys(platformData));
+            const savedGenres = loadJsonValue('streamhub_genres', ['all']);
+
+            if (Array.isArray(savedSources) && savedSources.length) {
+                selectedSources = new Set(savedSources);
+            }
+            if (Array.isArray(savedPlatforms) && savedPlatforms.length) {
+                selectedPlatforms = new Set(savedPlatforms);
+            }
+            if (Array.isArray(savedGenres) && savedGenres.length) {
+                selectedGenres = new Set(savedGenres);
+            }
+        }
+
+        function persistSelections() {
+            saveJsonValue('streamhub_sources', Array.from(selectedSources));
+            saveJsonValue('streamhub_platforms', Array.from(selectedPlatforms));
+            saveJsonValue('streamhub_genres', Array.from(selectedGenres));
+        }
+
+        function fetchWithRetry(url, maxRetries = 3, delay = 800) {
+            return new Promise(async (resolve, reject) => {
+                for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            if (attempt === maxRetries - 1) return reject(new Error('HTTP ' + response.status));
+                            await new Promise(r => setTimeout(r, delay * (attempt + 1)));
+                            continue;
+                        }
+                        return resolve(response);
+                    } catch (error) {
+                        if (attempt === maxRetries - 1) return reject(error);
+                        await new Promise(r => setTimeout(r, delay * (attempt + 1)));
+                    }
+                }
+            });
+        }
+
+        function normalizeProviderKey(providerName = '', providerId = null) {
+            const name = String(providerName || '').toLowerCase();
+            for (const [key, data] of Object.entries(platformData)) {
+                if (providerId !== null && data.providerIds.includes(Number(providerId))) {
+                    return key;
+                }
+
+                if (data.aliases.some(alias => name.includes(alias.toLowerCase()))) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        function mapWatchProvidersToPlatformKeys(watchProviders = {}) {
+            const keys = new Set();
+            const providerGroups = ['flatrate', 'rent', 'buy', 'ads'];
+
+            providerGroups.forEach(groupName => {
+                const providers = watchProviders[groupName] || [];
+                providers.forEach(provider => {
+                    const key = normalizeProviderKey(provider.provider_name, provider.provider_id);
+                    if (key) keys.add(key);
+                });
+            });
+
+            return [...keys];
+        }
+
+        function getFallbackPlatformKey(itemId) {
+            const keys = Object.keys(platformData);
+            return keys[Math.abs(Number(itemId) || 0) % keys.length];
+        }
+
+        async function enrichItemsWithProviders(items) {
+            if (!items.length) return items;
+
+            const enriched = await Promise.all(items.map(async (item) => {
+                const baseKey = getFallbackPlatformKey(item.id);
+                try {
+                    const response = await fetchWithRetry(`https://api.themoviedb.org/3/${currentMediaType}/${item.id}/watch/providers?api_key=${config.tmdbKey}`);
+                    const data = await response.json();
+                    const providerKeys = mapWatchProvidersToPlatformKeys(data.results && data.results.FR ? data.results.FR : data.results || {});
+                    return {
+                        ...item,
+                        platformKeys: providerKeys.length ? providerKeys : [baseKey],
+                        primaryPlatformKey: providerKeys[0] || baseKey
+                    };
+                } catch (error) {
+                    return {
+                        ...item,
+                        platformKeys: [baseKey],
+                        primaryPlatformKey: baseKey
+                    };
+                }
+            }));
+
+            return enriched;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            restoreSelections();
             initSources();
             initPlatforms();
             initGenres();
@@ -286,6 +399,8 @@
             document.getElementById('typeTv').className = type === 'tv'
                 ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md'
                 : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            document.getElementById('typeMovie').setAttribute('aria-pressed', type === 'movie' ? 'true' : 'false');
+            document.getElementById('typeTv').setAttribute('aria-pressed', type === 'tv' ? 'true' : 'false');
 
             selectedSources.clear();
             selectedSources.add('trending');
@@ -294,6 +409,7 @@
 
             initSources();
             initGenres();
+            persistSelections();
             loadCatalogue();
         }
 
@@ -302,7 +418,10 @@
             const sources = sourcesConfig[currentMediaType];
             container.innerHTML = sources.map(src => {
                 const active = selectedSources.has(src.id);
-                return `<button onclick="toggleSource('${src.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white'}">
+                const buttonClasses = active
+                    ? 'bg-accent text-white shadow-md'
+                    : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700';
+                return `<button type="button" aria-label="${src.label}" aria-pressed="${active ? 'true' : 'false'}" onclick="toggleSource('${src.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${buttonClasses}">
                     <i class="fa-solid ${active ? 'fa-check text-[10px]' : 'fa-plus text-[10px]'}"></i> ${src.label}
                 </button>`;
             }).join('');
@@ -316,6 +435,7 @@
                 selectedSources.add(id);
             }
             initSources();
+            persistSelections();
             loadCatalogue();
         }
 
@@ -327,7 +447,7 @@
             const container = document.getElementById('platformsContainer');
             container.innerHTML = Object.entries(platformData).map(([key, p]) => {
                 const active = selectedPlatforms.has(key);
-                return `<button onclick="togglePlatform('${key}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? `${p.color} text-white` : 'bg-gray-800/80 text-gray-300 hover:text-white'}">
+                return `<button type="button" aria-label="${p.name}" aria-pressed="${active ? 'true' : 'false'}" onclick="togglePlatform('${key}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? `${p.color} text-white shadow-md` : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">
                     <span class="w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-gray-500'}"></span> ${p.name}
                 </button>`;
             }).join('');
@@ -340,6 +460,7 @@
                 selectedPlatforms.add(key);
             }
             initPlatforms();
+            persistSelections();
             applyFilters();
         }
 
@@ -351,17 +472,17 @@
                 Object.keys(platformData).forEach(k => selectedPlatforms.add(k));
             }
             initPlatforms();
+            persistSelections();
             applyFilters();
         }
 
         function initGenres() {
             const container = document.getElementById('genresContainer');
             const genres = genreMap[currentMediaType];
-            let html = `<button onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white'}">Tous</button>`;
-
+            let html = `<button type="button" aria-label="Tout genres" aria-pressed="${selectedGenres.has('all') ? 'true' : 'false'}" onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">Tous</button>`;
             html += Object.entries(genres).map(([id, name]) => {
                 const active = selectedGenres.has(id);
-                return `<button onclick="setGenre('${id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${active ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white'}">${name}</button>`;
+                return `<button type="button" aria-label="${name}" aria-pressed="${active ? 'true' : 'false'}" onclick="setGenre('${id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${active ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">${name}</button>`;
             }).join('');
             container.innerHTML = html;
         }
@@ -380,6 +501,7 @@
                 }
             }
             initGenres();
+            persistSelections();
             applyFilters();
         }
 
@@ -395,7 +517,7 @@
             try {
                 let items = [];
                 const url = `https://api.themoviedb.org/3/trending/${currentMediaType}/week?api_key=${config.tmdbKey}&language=fr-FR`;
-                const res = await fetch(url);
+                const res = await fetchWithRetry(url);
                 const data = await res.json();
 
                 if (data.results) {
@@ -405,15 +527,16 @@
                         overview: item.overview || 'Aucun synopsis disponible.',
                         poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=Pas+d+affiche',
                         backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
-                        rating: item.vote_average ? item.vote_average.toFixed(1) : 'N/A',
+                        rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 'N/A',
                         year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
                         genre_ids: item.genre_ids || [],
                         sourceFeed: Array.from(selectedSources)[0] || 'trending',
-                        platformKey: Object.keys(platformData)[item.id % Object.keys(platformData).length]
+                        platformKeys: [],
+                        primaryPlatformKey: 'netflix'
                     }));
                 }
 
-                mediaCache = items;
+                mediaCache = await enrichItemsWithProviders(items);
                 applyFilters();
             } catch (err) {
                 console.error(err);
@@ -422,16 +545,23 @@
         }
 
         function handleSearch() {
+            clearTimeout(searchTimeout);
             searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            applyFilters();
+            searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 300);
         }
 
         function applyFilters() {
             let filtered = mediaCache.filter(item => {
                 if (searchQuery && !item.title.toLowerCase().includes(searchQuery)) return false;
-                if (!selectedPlatforms.has(item.platformKey)) return false;
+
+                const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
+                const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
+                if (!matchesPlatform) return false;
+
                 if (!selectedGenres.has('all')) {
-                    const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(gId.toString()));
+                    const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(String(gId)));
                     if (!matchesGenre) return false;
                 }
                 return true;
@@ -450,24 +580,25 @@
             }
 
             grid.innerHTML = items.map(item => {
-                const plat = platformData[item.platformKey];
+                const primaryKey = item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix';
+                const plat = platformData[primaryKey] || platformData.netflix;
                 return `
-                <div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative">
-                    <div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden">
-                        <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-                        <div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div>
-                        <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1">
-                            <i class="fa-solid fa-star text-[9px]"></i> ${item.rating}
-                        </div>
-                        <div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end">
-                            <h3 class="font-bold text-xs text-white truncate">${item.title}</h3>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] text-gray-400 font-medium">${item.year}</span>
+                    <div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${item.title}">
+                        <div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden">
+                            <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div>
+                            <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1">
+                                <i class="fa-solid fa-star text-[9px]"></i> ${item.rating}
                             </div>
-                            <p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p>
+                            <div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end">
+                                <h3 class="font-bold text-xs text-white truncate">${item.title}</h3>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] text-gray-400 font-medium">${item.year}</span>
+                                </div>
+                                <p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
+                    </div>`;
             }).join('');
         }
 
@@ -492,15 +623,22 @@
                 backdrop.style.backgroundPosition = 'center';
             }
 
-            const plat = platformData[item.platformKey];
-            document.getElementById('modalPlatforms').innerHTML = `<span class="px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold">${plat.name}</span>`;
+            const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'])
+                .map(key => {
+                    const data = platformData[key] || platformData.netflix;
+                    return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
+                })
+                .join('');
+            document.getElementById('modalPlatforms').innerHTML = platformBadges;
 
             const genresObj = genreMap[currentMediaType];
-            document.getElementById('modalGenres').innerHTML = item.genre_ids.map(gId => genresObj[gId] ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${genresObj[gId]}</span>` : '').join('');
+            document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
+                const label = genresObj[gId];
+                return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
+            }).join('');
 
             document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
             document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
-
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
@@ -516,11 +654,11 @@
             container.innerHTML = `<div class="py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
 
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}&language=fr-FR`);
+                const res = await fetchWithRetry(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}&language=fr-FR`);
                 const data = await res.json();
                 let trailer = data.results && data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
                 if (!trailer) {
-                    const resEn = await fetch(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}`);
+                    const resEn = await fetchWithRetry(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}`);
                     const dataEn = await resEn.json();
                     trailer = dataEn.results && dataEn.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
                 }
@@ -549,24 +687,27 @@
             }
 
             try {
-                const res = await fetch(`${config.serverUrl}/api/v1/request`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Api-Key': config.serverKey
-                    },
-                    body: JSON.stringify({
-                        mediaType: currentMediaType,
-                        mediaId: item.id
-                    })
-                });
-
-                if (res.ok) {
-                    alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
-                    closeDetailModal();
-                } else {
+                const res = await fetchWithRetry(`${config.serverUrl}/api/v1/request`, 3, 800);
+                const response = await res.text();
+                if (!res.ok) {
                     alert('Erreur lors de l\'envoi de la demande au serveur.');
+                    return;
                 }
+
+                let json;
+                try {
+                    json = JSON.parse(response);
+                } catch (e) {
+                    json = { ok: true };
+                }
+
+                if (json && json.error) {
+                    alert(`Erreur serveur: ${json.error}`);
+                    return;
+                }
+
+                alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
+                closeDetailModal();
             } catch (err) {
                 alert('Impossible de contacter le serveur Overseerr / Moonfin. Vérifiez l\'URL.');
             }
