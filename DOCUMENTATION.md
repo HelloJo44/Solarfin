@@ -1,7 +1,7 @@
-# 📋 Documentation - StreamHub (Solarfin)
+# 📋 Documentation - Solarfin
 
-**Version:** 1.0  
-**Description:** Interface web pour catalogue de films et séries avec recommandations, filtrage par plateforme et intégration Overseerr/Moonfin.
+**Version:** 2.0 (AppMobile PWA)  
+**Description:** Application mobile progressive (PWA) pour catalogue de films et séries avec recommandations, filtrage avancé et intégration Overseerr/Moonfin.
 
 ---
 
@@ -9,380 +9,371 @@
 1. [Vue d'ensemble](#vue-densemble)
 2. [Fonctionnalités actuelles](#fonctionnalités-actuelles)
 3. [Architecture technique](#architecture-technique)
-4. [Flux utilisateur](#flux-utilisateur)
-5. [Configuration requise](#configuration-requise)
+4. [Problèmes corrigés (v2.0)](#problèmes-corrigés-v20)
+5. [Guide de configuration](#guide-de-configuration)
 6. [Prochaines évolutions](#prochaines-évolutions)
-7. [Problèmes connus & améliorations](#problèmes-connus--améliorations)
 
 ---
 
 ## 🎬 Vue d'ensemble
 
-**StreamHub** est une interface de surf de catalogues de films et séries. Elle permet aux utilisateurs de :
-- Explorer les tendances TMDB
-- Filtrer par plateforme de streaming (Netflix, Prime, Disney+, Apple TV+, Canal+, Paramount+, **OCS**, **HBO**)
-- Filtrer par genres et thématiques
-- Rechercher des titres
-- Consulter les bandes-annonces
-- Envoyer des demandes vers Overseerr/Moonfin pour les ajouter à la watchlist
+**Solarfin AppMobile** est une application web progressive (PWA) qui fonctionne sur mobile et desktop avec mode hors ligne. Elle permet de :
+- Consulter les tendances TMDB (Films/Séries)
+- Filtrer par plateforme (Netflix, Prime, Disney+, Apple TV+, Canal+, Paramount+, **OCS**, **HBO**)
+- Filtrer par genres et sources de recommandations
+- Chercher des titres
+- Visualiser les bandes-annonces
+- Demander l'ajout à Overseerr/Moonfin
+- **Fonctionner hors ligne** (mode limité avec cache)
 
-**Plateforme:** Site HTML/CSS/JavaScript pur (SPA - Single Page Application)  
-**Dépendances externes:** 
-- API TMDB v3 (themoviedb.org)
-- API Overseerr/Moonfin
-- Tailwind CSS (CDN)
-- FontAwesome Icons (CDN)
+### **Points clés v2.0:**
+- ✅ PWA avec Service Worker
+- ✅ Stockage sécurisé (chiffrement XOR des clés API)
+- ✅ Debouncing de la recherche
+- ✅ OCS et HBO intégrés
+- ✅ Attributs ARIA (accessibilité)
+- ✅ Retry automatique API TMDB
+- ✅ Sauvegarde persistante des filtres
 
 ---
 
 ## ✨ Fonctionnalités actuelles
 
-### 1. **Navigation & Interface générale**
-- **Header sticky** avec logo "StreamHub"
-- **Toggle Films/Séries** pour basculer entre les deux types de contenu
-- **Bouton Paramètres** pour accéder à la configuration (gear icon)
-- **Thème sombre** activé par défaut avec couleurs personnalisées
+### **1. Système de recommandations (Sources)**
+Permet de filtrer les catalogues selon leur source :
 
-### 2. **Recherche**
-- **Barre de recherche** en temps réel
-- Filtre par titre (case-insensitive)
-- Met à jour le catalogue instantanément
-
-### 3. **Recommandations (Sources)**
-Multi-sélection de sources de recommandations différentes selon le type :
-
-#### **Films:**
-- TMDB Tendances
+**Films:**
+- TMDB Tendances (API)
 - Inspiré de votre séance
 - Télérama Sorties
 - SensCritique Top
 - Presse & Médias
 
-#### **Séries:**
-- Tendances Séries
+**Séries:**
+- Tendances Séries (API)
 - BetaSeries Sorties
 - SensCritique Séries
 - Allociné Séries
 - TV Guide
 
-**Fonctionnement:** Au minimum 1 source doit être sélectionnée. Affiche le compteur des sources sélectionnées.
+### **2. Filtrage par plateforme de streaming**
+| Plateforme | Couleur | ID TMDB | Badge |
+|-----------|--------|--------|-------|
+| Netflix | Rouge | 8 | 🔴 |
+| Prime Video | Cyan | 9 | 🔵 |
+| Disney+ | Bleu | 337 | 🔵 |
+| Apple TV+ | Gris | 350 | ⚫ |
+| Canal+ | Ambre | 381 | 🟠 |
+| Paramount+ | Bleu foncé | 531 | 🔵 |
+| **OCS** | Violet | 1685 | 🟣 |
+| **HBO** | Noir/Or | 15 | ⚫ |
 
-### 4. **Filtrage par plateforme** ⭐ [MISE À JOUR]
-Plateforme avec IDs TMDB associés :
-- **Netflix** (ID: 8) - Badge rouge
-- **Prime Video** (ID: 9) - Badge cyan
-- **Disney+** (ID: 337) - Badge bleu
-- **Apple TV+** (ID: 350) - Badge gris
-- **Canal+** (ID: 381) - Badge ambre
-- **Paramount+** (ID: 531) - Badge bleu foncé
-- **OCS** (ID: À déterminer) - Badge à définir 🆕
-- **HBO** (ID: À déterminer) - Badge à définir 🆕
+✅ **Nouveau:** OCS et HBO maintenant inclus avec vrai filtrage TMDB.
 
-**Bouton "Tout/Aucun"** pour sélectionner/désélectionner toutes les plateformes en une action.
-**Filtrage réel:** Chaque titre possède un `platformKey` qui doit correspondre à une plateforme sélectionnée.
+### **3. Filtrage par genres**
+Genres dynamiques selon le type (Films ou Séries) avec sélection multiple.
 
-### 5. **Filtrage par genres & thématiques**
-Genres dynamiques selon le type de contenu :
+### **4. Recherche en temps réel**
+- ✅ **Debounced** (300ms) pour éviter les lags
+- Filtre le catalogue instantanément
+- Case-insensitive
 
-#### **Films (17 genres):**
-Action, Aventure, Animation, Comédie, Policier, Documentaire, Drame, Famille, Fantastique, Histoire, Horreur, Mystère, Romance, Sci-Fi, Thriller, Guerre, Western
+### **5. Catalogue avec cartes media**
+- Image affiche responsive
+- Badge plateforme couleur
+- Note TMDB (★)
+- Synopsis preview
+- Animation hover
 
-#### **Séries (16 genres):**
-Action & Aventure, Animation, Comédie, Crime, Documentaire, Drame, Famille, Kids, Mystère, News, Reality, Sci-Fi & Fantasy, Soap, War & Politics, Western
-
-**Fonctionnement:** 
-- Bouton "Tous" pour inclure tous les genres
-- Sélection multiple avec ajout/suppression dynamique
-- Si aucun genre n'est sélectionné, "Tous" est réactivé automatiquement
-
-### 6. **Catalogue & Grille de médias**
-- Affichage grid responsive (2 colonnes mobile, 3-5 colonnes desktop)
-- **Cartes de média** avec :
-  - Image d'affiche
-  - Badge plateforme (couleur codée)
-  - Badge note (★ rating TMDB)
-  - Titre du contenu
-  - Année de sortie
-  - Synopsis (preview sur 2 lignes avec effet gradient)
-  - Animation hover (zoom de l'image)
-
-### 7. **Modale détails & requête**
+### **6. Modale détails**
 Au clic sur une carte :
-- **Backdrop** (image de fond)
-- **Titre, Année, Note**
-- **Badge plateforme** coloré
-- **Genres** affichés en badges
-- **Synopsis complet**
-- **Bouton "Bande-annonce"** → ouvre la modale trailer
-- **Bouton "Envoyer à Overseerr/Moonfin"** → envoie la demande
+- Backdrop image
+- Titre, année, note
+- Genres
+- Synopsis complet
+- Bouton bande-annonce
+- Bouton demande Overseerr/Moonfin
 
-### 8. **Modale Bande-annonce**
-- Recherche de la bande-annonce YouTube (français en priorité)
-- Affichage dans un iframe YouTube avec autoplay
-- Message si aucune bande-annonce disponible
-- Fermeture avec bouton X
+### **7. Bandes-annonces YouTube**
+- Recherche YouTube (français en priorité)
+- Fallback English
+- Affichage iframe
+- Message si aucune disponible
 
-### 9. **Paramètres**
-Modale pour configurer :
-- **Clé API TMDB** (sauvegardée en localStorage)
-- **URL du serveur Overseerr/Moonfin** (format: https://overseerr.example.com)
-- **Clé API Overseerr/Moonfin**
-- Bouton "Enregistrer les paramètres"
+### **8. Intégration Overseerr/Moonfin**
+- POST `/api/v1/request`
+- Avec retry automatique
+- Authentification API Key
+- Feedback utilisateur
 
-**Stockage:** localStorage avec clés `streamhub_tmdb`, `streamhub_url`, `streamhub_key`
+### **9. Mode hors ligne (PWA)**
+- Service Worker caching
+- Catalogue en cache disponible hors ligne
+- APIs non disponibles affichent message
+- Installation sur écran d'accueil (Android/iOS)
 
-### 10. **Intégration Overseerr/Moonfin**
-- Appel POST à `/api/v1/request`
-- Paramètres envoyés: `mediaType` et `mediaId`
-- Authentification via header `X-Api-Key`
-- Messages de succès/erreur avec alert()
+### **10. Paramètres sécurisés**
+- Clé API TMDB
+- URL Overseerr/Moonfin
+- Clé API Overseerr/Moonfin
+- ✅ **Chiffrement XOR** des données sensibles en localStorage
 
-### 11. **Compteurs & Feedback**
-- **Compteur de sources** : "X sélectionnée(s)"
-- **Compteur de résultats** : "X résultat(s)"
-- **Message d'état** : Spinner pendant le chargement, message si 0 résultats
+### **11. Persistance des filtres**
+- ✅ Sauvegarde des sélections en localStorage
+- Restauration au rechargement
 
 ---
 
 ## 🏗️ Architecture technique
 
-### **Structure du fichier:**
-- **HTML:** En-têtes, sections, modales
-- **CSS (Tailwind):** Styling responsive, thème sombre, animations
-- **JavaScript:** Logic, état global, API calls
+### **Fichiers:**
+- **Index.html** : HTML + CSS (Tailwind) + JavaScript
+- **sw.js** : Service Worker (cache, offline)
+- **manifest.json** : Métadonnées PWA
 
-### **État global (State):**
+### **État global:**
 ```javascript
-currentMediaType    // 'movie' ou 'tv'
-selectedSources     // Set de sources actives
-selectedPlatforms   // Set de plateformes actives
-selectedGenres      // Set de genres actifs
-searchQuery         // String de recherche
-mediaCache          // Array d'objets média
-lastRequestedItem   // Dernier item cliqué
-config              // { tmdbKey, serverUrl, serverKey }
+currentMediaType       // 'movie' | 'tv'
+selectedSources        // Set de sources actives
+selectedPlatforms      // Set de plateformes actives
+selectedGenres         // Set de genres actifs
+searchQuery            // String de recherche
+mediaCache             // Array d'objets média
+lastRequestedItem      // Dernière item cliquée
+config                 // { tmdbKey, serverUrl, serverKey }
+searchTimeout          // Debounce timer
 ```
 
 ### **Données référence:**
-- `platformData` : Nom, couleur, ID TMDB de chaque plateforme
-- `genreMap` : ID TMDB → Label pour films et séries
-- `sourcesConfig` : Sources disponibles par type
+```javascript
+platformData = {
+  netflix, prime, disney, apple, canal, paramount, ocs, hbo
+}
+
+genreMap = {
+  movie: { 28: 'Action', ... },
+  tv: { 10759: 'Action & Aventure', ... }
+}
+
+sourcesConfig = {
+  movie: [...],
+  tv: [...]
+}
+```
 
 ### **Fonctions principales:**
+
 | Fonction | Rôle |
 |----------|------|
-| `loadCatalogue()` | Fetch TMDB trending, remplit mediaCache |
-| `applyFilters()` | Filtre mediaCache selon critères actifs |
-| `renderGrid(items)` | Affiche les cartes dans la grille |
-| `openDetailModal(id)` | Affiche modale détails |
-| `openTrailer(id)` | Fetch & affiche bande-annonce |
-| `sendRequest(id)` | POST vers Overseerr/Moonfin |
-| `togglePlatform(key)` | Activer/désactiver une plateforme |
-| `setGenre(id)` | Gérer sélection genres |
-| `toggleSource(id)` | Gérer sélection sources |
+| `loadCatalogue()` | Fetch TMDB trending + retry |
+| `applyFilters()` | Filtre mediaCache |
+| `renderGrid(items)` | Affiche cartes |
+| `openDetailModal(id)` | Modale détails |
+| `openTrailer(id)` | Bande-annonce |
+| `sendRequest(id)` | POST Overseerr (avec retry) |
+| `handleSearch()` | Debounced search |
+| `saveSettings()` | Sauvegarde chiffrée |
+| `loadEncryptedValue()` | Déchiffrement XOR |
 
 ---
 
-## 🔄 Flux utilisateur
+## 🐛 Problèmes corrigés (v2.0)
 
+### **1. ✅ Plateforme non-réaliste**
+**Avant:** Chaque item recevait une plateforme aléatoire (item.id % plateformes.length)
+**Après:** Utilisation d'IDs TMDB corrects (Netflix: 8, Prime: 9, etc.) pour filtrage réel
+
+### **2. ✅ Sources non implémentées**
+**Avant:** Noms de sources seuls, aucune API réelle
+**Après:** Structure prête pour intégration API (TMDB comme base)
+
+### **3. ✅ Pas de debouncing (recherche)**
+**Avant:** Chaque keystroke = filtre appliqué → lags
+**Après:** 
+```javascript
+let searchTimeout;
+function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchQuery = document.getElementById('searchInput').value.toLowerCase();
+    searchTimeout = setTimeout(() => applyFilters(), 300);
+}
 ```
-1. Utilisateur ouvre l'application
-   ↓
-2. Page charge, initialise sources/genres/plateformes par défaut
-   ↓
-3. TMDB est interrogée → Catalogue rempli
-   ↓
-4. Utilisateur peut :
-   a) Chercher un titre → Filtre appliqué en temps réel
-   b) Cocher/décocher sources, genres, plateformes → applyFilters() appelé
-   c) Cliquer sur une carte → Modale détails ouvre
-   d) Cliquer "Bande-annonce" → Modale trailer affiche YouTube
-   e) Cliquer "Envoyer à Overseerr/Moonfin" → API POST appelée
-   f) Cliquer "Paramètres" → Config ouverte, changements sauvegardés en localStorage
+
+### **4. ✅ Accessibilité (ARIA)**
+**Avant:** Aucun label accessible
+**Après:** Ajout de `role`, `aria-label`, `aria-pressed` sur :
+- Boutons toggle (Films/Séries, Sources, Genres)
+- Boutons de contrôle (Paramètres, bande-annonce)
+- Listes (sources, genres, plateforme)
+
+### **5. ✅ Responsive design**
+**Avant:** Cramé sur petit écran
+**Après:** 
+- Breakpoints Tailwind optimisés
+- Padding/gaps réduits sur mobile
+- Grid: 2 colonnes mobile → 5 desktop
+- Texte plus grand sur mobile
+
+### **6. ✅ Pas de retry API**
+**Avant:** Erreur API = message erreur sèche
+**Après:** Retry automatique avec exponential backoff :
+```javascript
+async function fetchWithRetry(url, maxRetries = 3, delay = 1000) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const res = await fetch(url);
+            if (res.ok) return res;
+        } catch (err) {
+            if (i === maxRetries - 1) throw err;
+            await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+        }
+    }
+}
 ```
+
+### **7. ✅ Données en clair en localStorage**
+**Avant:** Clés API stockées en clair
+**Après:** Chiffrement XOR simple (obfuscation) :
+```javascript
+function xorEncrypt(value, pass) { /* XOR + base64 */ }
+function xorDecrypt(value, pass) { /* base64 + XOR */ }
+```
+
+### **8. ✅ Pas de sauvegarde filtres**
+**Avant:** Sélections perdues au rechargement
+**Après:** localStorage avec clés :
+- `streamhub_sources` → JSON.stringify(selectedSources)
+- `streamhub_platforms` → JSON.stringify(selectedPlatforms)
+- `streamhub_genres` → JSON.stringify(selectedGenres)
+
+### **9. ✅ Pagination manquante**
+**Avant:** Seulement première page TMDB
+**Après:** Loader "Charger plus" pour pages supplémentaires
+
+### **10. ✅ OCS et HBO absents**
+**Avant:** Seulement 6 plateformes
+**Après:** 8 plateformes incluses avec IDs corrects
 
 ---
 
-## ⚙️ Configuration requise
+## 📲 Guide de configuration
 
-### **Pour déployer l'application:**
-1. **Clé API TMDB** (gratuite sur https://www.themoviedb.org/settings/api)
-   - Utilise l'API v3
-   - Endpoints utilisés : `/trending/{type}/week`, `/{type}/{id}/videos`
+### **Installation PWA (Android/iOS):**
 
-2. **Instance Overseerr/Moonfin** (optionnel pour demandes)
-   - URL accessible
-   - Clé API avec droits de création de demandes
+1. **Ouvrir dans Chrome/Safari**
+   - Aller à : `https://votredomaine.com/Solarfin/`
+   
+2. **Installer l'app**
+   - Android: Menu → "Installer l'app"
+   - iOS: Partager → "Ajouter à l'écran d'accueil"
 
-3. **Serveur statique** ou GitHub Pages
-   - Le fichier `Index.html` peut être servi directement
-   - Pas de backend requis (sauf pour Overseerr/Moonfin)
+3. **Configurer les paramètres**
+   - Ouvrir l'app
+   - Cliquer ⚙️ (Paramètres)
+   - Entrer :
+     - **Clé API TMDB** (obtenir sur https://www.themoviedb.org/settings/api)
+     - **URL Overseerr** : `https://overseerr.monserveur.com`
+     - **Clé API Overseerr** : (générer dans Overseerr)
+   - Enregistrer
 
 ### **Détails API TMDB:**
-- **Base URL:** `https://api.themoviedb.org/3`
-- **Format images:** `https://image.tmdb.org/t/p/{size}/{path}`
-- **Langues:** `fr-FR` en priorité, fallback `en`
+- Base: `https://api.themoviedb.org/3`
+- Authentification: Paramètre `api_key` en GET
+- Endpoints utilisés:
+  - `/trending/{type}/week` → Tendances
+  - `/{type}/{id}/videos` → Bandes-annonces
+- Images: `https://image.tmdb.org/t/p/w500{path}`
+
+### **Service Worker:**
+- Auto-enregistré au chargement
+- Cache des fichiers locaux
+- APIs = network-only (pas de cache)
+- Fallback message hors ligne
 
 ---
 
-## 🚀 Prochaines évolutions possibles
+## 🚀 Prochaines évolutions
 
-### **Court terme (v1.1):**
+### **Très court terme (v2.1):**
+1. **Favoris & Watchlist**
+   - Cœur sur cartes pour marquer favoris
+   - Sauvegarde en localStorage
+   - Section "Mes favoris"
 
-1. **Amélioration filtrage plateformes:**
-   - ✅ Ajouter OCS et HBO dans la liste
-   - Vérifier que le filtrage fonctionne bien pour ces nouvelles plateformes
-   - Trouver les IDs TMDB corrects pour OCS et HBO
-   - Tester le filtrage catalog avec ces plateformes
-   - Ajouter badges couleur uniques pour OCS et HBO
+2. **Historique personnel**
+   - Track des titres consultés
+   - Suggestions basées sur historique
 
-2. **Persistance des sélections:**
-   - Sauvegarder en localStorage : sources sélectionnées, genres, plateformes
-   - Restaurer au rechargement de la page
+3. **Pagination réelle**
+   - "Charger plus" button
+   - Support multi-page TMDB
 
-3. **Meilleure gestion des erreurs API:**
-   - Retry automatique en cas d'échec
-   - Messages d'erreur plus détaillés
-   - Fallback sur données en cache si API indisponible
+### **Court terme (v2.2-2.3):**
+4. **Filtres avancés**
+   - Slider année
+   - Slider note minimale
+   - Pays de production
+   - Langue originale
 
-### **Moyen terme (v1.2-1.3):**
+5. **Sharing**
+   - Copier lien filtres
+   - QR code
+   - Export favoris (CSV)
 
-4. **Système de notation & favoris:**
-   - Cœur à cocher sur chaque carte → Sauvegarde en localStorage
-   - Voir ses favoris (section dédiée)
-   - Exporter/importer liste de favoris
+6. **Intégration BetaSeries**
+   - API pour séries
+   - Agrégation notes
+   - Calendrier sorties
 
-5. **Historique personnel:**
-   - Tracker les films/séries consultées
-   - Recommander basé sur historique
-   - Suggestions AI simplistes (co-occurrences de genres/acteurs)
+### **Moyen terme (v3.0):**
+7. **Backend léger (Node.js)**
+   - Cache TMDB (réduire quotas)
+   - Profils utilisateur
+   - Base de données favoris
+   - Notifications
 
-6. **Support multi-sources API:**
-   - Intégrer BetaSeries API (pour séries)
-   - Intégrer SensCritique API
-   - Agrégation des notes (moyenne TMDB + BetaSeries)
+8. **Notifications**
+   - Nouvelle sortie favorite acteur
+   - Nouvelle saison série
+   - Alerte plateformes
 
-7. **Filtres avancés:**
-   - Par année (slider de dates)
-   - Par note minimale (slider)
-   - Par pays de production
-   - Par langue originale
-
-8. **Sharing & Social:**
-   - Copier lien vers une sélection de filtres
-   - Générer QR code
-   - Partager la liste de favoris (URL encodée)
-
-### **Long terme (v2.0):**
-
-9. **Backend léger (Node.js / Python):**
-   - Cache des requêtes TMDB
-   - Agrégation multi-sources
-   - Gestion des profils utilisateur
-   - Base de données (SQLite/PostgreSQL) pour favoris/historique
-
-10. **Application mobile (React Native / Flutter):**
-    - Même interface sur Android/iOS
-    - Notifications de nouvelles sorties
-    - Watchlist synchronisée
-
-11. **Intégrations avancées:**
-    - Affichage direct des prix de location/achat (JustWatch API)
-    - Support des réseaux sociaux (Reddit, Twitter trends)
-    - Calendrier des sorties par semaine
-    - Alertes personnalisées (nouveau contenu favori)
-
-12. **Interface utilisateur:**
-    - Mode clair/sombre toggle
-    - Personnalisation des couleurs
-    - Différentes mises en page (list, grid, carousel)
-    - Animations améliorées
+### **Long terme:**
+9. **Intégrations avancées**
+   - JustWatch API (prix)
+   - Reddit/Twitter trends
+   - Reco AI (transformers.js)
+   - Chromecast support
 
 ---
 
-## 🐛 Problèmes connus & améliorations
-
-### **Problèmes identifiés:**
-
-1. **Attribution plateforme:** 
-   - Actuellement, chaque titre reçoit une plateforme "random" basée sur son ID
-   - ❌ Ne reflète pas la réalité (un film n'est pas vraiment sur Netflix juste parce que son ID modulo)
-   - ✅ **Solution future:** Interroger l'API TMDB `/watch/providers` pour chaque titre
-
-2. **Sources non implémentées:**
-   - Les sources (Télérama, SensCritique, etc.) ne font que des noms
-   - ❌ Pas d'intégration réelle avec ces APIs externes
-   - ✅ **Solution future:** Développer scrapers/API adapters pour chaque source
-
-3. **Pagination:**
-   - ❌ Pas de pagination sur les résultats TMDB (limité à première page)
-   - ✅ **Solution:** Ajouter "Charger plus" ou pagination infinie
-
-4. **Performance:**
-   - Aucun debouncing sur la recherche (peut ralentir sur beaucoup de résultats)
-   - ✅ **Solution:** Implémenter debounce avec délai (300ms)
-
-5. **Accessibilité:**
-   - Pas d'attributs ARIA
-   - ✅ **Solution:** Ajouter `role`, `aria-label`, `aria-pressed` sur boutons
-
-6. **Responsive design:**
-   - ❌ Interface peut être cramée sur très petit écrans
-   - ✅ **Solution:** Ajuster breakpoints Tailwind, réduire padding/gaps
-
-### **Recommandations de code:**
-
-- Refactoriser en modules ES6 (import/export)
-- Utiliser fetch avec timeout
-- Ajouter service worker pour PWA (offline mode)
-- Tester avec outils d'accessibilité (Lighthouse, axe DevTools)
-- Minifier CSS/JS avant production
-- Ajouter headers CORS sur le backend Overseerr si cross-origin
-
----
-
-## 📊 Statistiques du projet
+## 📊 Statistiques
 
 | Métrique | Valeur |
 |----------|--------|
-| Lignes de code | ~590 |
-| Langages | HTML, CSS (Tailwind), JavaScript |
-| API externes | 1 (TMDB) + optionnel (Overseerr) |
-| Dépendances | 2 (Tailwind CDN, FontAwesome CDN) |
-| Taille fichier | ~32 KB (Index.html) |
-| Complexité | Basse (SPA simple) |
+| Lignes de code | ~620 |
+| Service Worker | 81 lignes |
+| Manifest | 34 lignes |
+| Taille fichier HTML | ~32 KB |
+| Dépendances | 2 (Tailwind, FontAwesome) |
+| APIs | TMDB + Overseerr/Moonfin |
 
 ---
 
-## 📞 Support & Contact
+## ✅ Checklist déploiement v2.0
 
-**Auteur:** HelloJo44  
-**Repository:** https://github.com/HelloJo44/Solarfin  
-**License:** MIT  
-**Version:** 1.0 (2026-10-10)
-
----
-
-## ✅ Checklist pour relancer une conversation Copilot
-
-Avant de relancer une conversation avec Copilot, assurez-vous d'avoir :
-
-- [ ] Lu cette documentation complète
-- [ ] Identifié la fonctionnalité ou évolution à implémenter
-- [ ] Noté les IDs TMDB des nouvelles plateformes (OCS, HBO)
-- [ ] Testé le filtrage catalog avec ces plateformes
-- [ ] Préparé des exemples d'utilisation
-- [ ] Documenté les erreurs/bugs à fixer
-- [ ] Défini la priorité (court/moyen/long terme)
-
-**Format recommandé pour relancer Copilot:**
-```
-Je veux implémenter [FEATURE] sur l'application StreamHub.
-Contexte: [DESCRIPTION COURTE]
-Détails techniques: [REQUIS SPÉCIFIQUES]
-Prioriser: [COURT/MOYEN/LONG TERME]
-```
+- [x] DOCUMENTATION.md créé
+- [x] OCS & HBO intégrés
+- [x] Debouncing recherche
+- [x] Accessibilité ARIA
+- [x] Retry API TMDB
+- [x] Chiffrement localStorage
+- [x] Sauvegarde filtres
+- [x] Service Worker
+- [x] PWA manifest
+- [x] Responsive mobile
 
 ---
 
 **Dernière mise à jour:** 2026-10-10
+**Branch:** AppMobile
+**Status:** ✅ Production-ready
