@@ -1,0 +1,33 @@
+{
+  "name": "StreamHub - Film & Série Catalogue",
+  "short_name": "StreamHub",
+  "description": "Catalogue de films et séries avec Overseerr/Moonfin",
+  "start_url": "./Index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0f19",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%236366f1' width='192' height='192' rx='45'/><text x='96' y='96' font-size='100' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>▶</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%236366f1' width='512' height='512' rx='120'/><text x='256' y='256' font-size='280' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>▶</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%230b0f19' width='540' height='720'/><text x='270' y='360' font-size='60' fill='%236366f1' text-anchor='middle' dominant-baseline='central' font-weight='bold'>StreamHub</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ]
+}

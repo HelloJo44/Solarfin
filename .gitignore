@@ -33,5 +33,5 @@ coverage/
 *.tar
 *.gz
 
-# Keep HTML files tracked
-# (Do not ignore *.html)
+# Keep web files tracked
+# (Do not ignore *.html, *.json, *.js, *.css)
