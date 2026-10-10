@@ -606,37 +606,77 @@
             document.getElementById('trailerContainer').innerHTML = '';
         }
 
+        // async function sendRequest(id) {
+        //     const item = mediaCache.find(m => m.id === id);
+        //     if (!config.serverUrl || !config.serverKey) {
+        //         alert('Veuillez configurer l\'URL et la clé API Overseerr / Moonfin dans les paramètres.');
+        //         openSettings();
+        //         return;
+        //     }
+        //     try {
+        //         const res = await fetchWithRetry(`${config.serverUrl}/api/v1/request`, 3, 800);
+        //         const response = await res.text();
+        //         if (!res.ok) {
+        //             alert('Erreur lors de l\'envoi de la demande au serveur.');
+        //             return;
+        //         }
+        //         let json;
+        //         try {
+        //             json = JSON.parse(response);
+        //         } catch (e) {
+        //             json = { ok: true };
+        //         }
+        //         if (json && json.error) {
+        //             alert(`Erreur serveur: ${json.error}`);
+        //             return;
+        //         }
+        //         alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
+        //         closeDetailModal();
+        //     } catch (err) {
+        //         alert('Impossible de contacter le serveur Overseerr / Moonfin. Vérifiez l\'URL.');
+        //     }
+        // }
+
+  
         async function sendRequest(id) {
             const item = mediaCache.find(m => m.id === id);
             if (!config.serverUrl || !config.serverKey) {
-                alert('Veuillez configurer l\'URL et la clé API Overseerr / Moonfin dans les paramètres.');
+                alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
                 openSettings();
                 return;
             }
             try {
-                const res = await fetchWithRetry(`${config.serverUrl}/api/v1/request`, 3, 800);
-                const response = await res.text();
+                const res = await fetch(`${config.serverUrl}/api/v1/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Api-Key': config.serverKey
+                    },
+                    body: JSON.stringify({
+                        mediaType: currentMediaType,
+                        mediaId: Number(id)
+                    })
+                });
+                
                 if (!res.ok) {
-                    alert('Erreur lors de l\'envoi de la demande au serveur.');
+                    const errText = await res.text();
+                    alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
                     return;
                 }
-                let json;
-                try {
-                    json = JSON.parse(response);
-                } catch (e) {
-                    json = { ok: true };
-                }
-                if (json && json.error) {
-                    alert(`Erreur serveur: ${json.error}`);
-                    return;
-                }
-                alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
+        
+                alert(`Demande pour "${item.title}" envoyée avec succès à Seer !`);
                 closeDetailModal();
             } catch (err) {
-                alert('Impossible de contacter le serveur Overseerr / Moonfin. Vérifiez l\'URL.');
+                console.error(err);
+                alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL (ex: http://192.168.1.X:5055) et le réseau.');
             }
         }
+    
 
+
+
+
+        
         function openSettings() {
             document.getElementById('settingTmdbKey').value = config.tmdbKey;
             document.getElementById('settingServerUrl').value = config.serverUrl;
