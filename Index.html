@@ -31,7 +31,6 @@
         .poster-gradient { background: linear-gradient(to top, rgba(11, 15, 25, 0.95) 0%, rgba(11, 15, 25, 0.75) 50%, rgba(11, 15, 25, 0) 100%); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .aria-pressed { outline: 2px solid rgba(99,102,241,0.7); }
     </style>
 </head>
 <body class="bg-darker text-gray-100 font-sans min-h-screen pb-24 selection:bg-accent selection:text-white">
@@ -286,16 +285,9 @@
             const savedSources = loadJsonValue('streamhub_sources', ['trending']);
             const savedPlatforms = loadJsonValue('streamhub_platforms', Object.keys(platformData));
             const savedGenres = loadJsonValue('streamhub_genres', ['all']);
-
-            if (Array.isArray(savedSources) && savedSources.length) {
-                selectedSources = new Set(savedSources);
-            }
-            if (Array.isArray(savedPlatforms) && savedPlatforms.length) {
-                selectedPlatforms = new Set(savedPlatforms);
-            }
-            if (Array.isArray(savedGenres) && savedGenres.length) {
-                selectedGenres = new Set(savedGenres);
-            }
+            if (Array.isArray(savedSources) && savedSources.length) selectedSources = new Set(savedSources);
+            if (Array.isArray(savedPlatforms) && savedPlatforms.length) selectedPlatforms = new Set(savedPlatforms);
+            if (Array.isArray(savedGenres) && savedGenres.length) selectedGenres = new Set(savedGenres);
         }
 
         function persistSelections() {
@@ -326,29 +318,20 @@
         function normalizeProviderKey(providerName = '', providerId = null) {
             const name = String(providerName || '').toLowerCase();
             for (const [key, data] of Object.entries(platformData)) {
-                if (providerId !== null && data.providerIds.includes(Number(providerId))) {
-                    return key;
-                }
-
-                if (data.aliases.some(alias => name.includes(alias.toLowerCase()))) {
-                    return key;
-                }
+                if (providerId !== null && data.providerIds.includes(Number(providerId))) return key;
+                if (data.aliases.some(alias => name.includes(alias.toLowerCase()))) return key;
             }
             return null;
         }
 
         function mapWatchProvidersToPlatformKeys(watchProviders = {}) {
             const keys = new Set();
-            const providerGroups = ['flatrate', 'rent', 'buy', 'ads'];
-
-            providerGroups.forEach(groupName => {
-                const providers = watchProviders[groupName] || [];
-                providers.forEach(provider => {
+            ['flatrate', 'rent', 'buy', 'ads'].forEach(groupName => {
+                (watchProviders[groupName] || []).forEach(provider => {
                     const key = normalizeProviderKey(provider.provider_name, provider.provider_id);
                     if (key) keys.add(key);
                 });
             });
-
             return [...keys];
         }
 
@@ -359,27 +342,17 @@
 
         async function enrichItemsWithProviders(items) {
             if (!items.length) return items;
-
             const enriched = await Promise.all(items.map(async (item) => {
                 const baseKey = getFallbackPlatformKey(item.id);
                 try {
                     const response = await fetchWithRetry(`https://api.themoviedb.org/3/${currentMediaType}/${item.id}/watch/providers?api_key=${config.tmdbKey}`);
                     const data = await response.json();
                     const providerKeys = mapWatchProvidersToPlatformKeys(data.results && data.results.FR ? data.results.FR : data.results || {});
-                    return {
-                        ...item,
-                        platformKeys: providerKeys.length ? providerKeys : [baseKey],
-                        primaryPlatformKey: providerKeys[0] || baseKey
-                    };
+                    return { ...item, platformKeys: providerKeys.length ? providerKeys : [baseKey], primaryPlatformKey: providerKeys[0] || baseKey };
                 } catch (error) {
-                    return {
-                        ...item,
-                        platformKeys: [baseKey],
-                        primaryPlatformKey: baseKey
-                    };
+                    return { ...item, platformKeys: [baseKey], primaryPlatformKey: baseKey };
                 }
             }));
-
             return enriched;
         }
 
@@ -393,20 +366,14 @@
 
         function switchMediaType(type) {
             currentMediaType = type;
-            document.getElementById('typeMovie').className = type === 'movie'
-                ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md'
-                : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
-            document.getElementById('typeTv').className = type === 'tv'
-                ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md'
-                : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            document.getElementById('typeMovie').className = type === 'movie' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            document.getElementById('typeTv').className = type === 'tv' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
             document.getElementById('typeMovie').setAttribute('aria-pressed', type === 'movie' ? 'true' : 'false');
             document.getElementById('typeTv').setAttribute('aria-pressed', type === 'tv' ? 'true' : 'false');
-
             selectedSources.clear();
             selectedSources.add('trending');
             selectedGenres.clear();
             selectedGenres.add('all');
-
             initSources();
             initGenres();
             persistSelections();
@@ -418,12 +385,8 @@
             const sources = sourcesConfig[currentMediaType];
             container.innerHTML = sources.map(src => {
                 const active = selectedSources.has(src.id);
-                const buttonClasses = active
-                    ? 'bg-accent text-white shadow-md'
-                    : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700';
-                return `<button type="button" aria-label="${src.label}" aria-pressed="${active ? 'true' : 'false'}" onclick="toggleSource('${src.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${buttonClasses}">
-                    <i class="fa-solid ${active ? 'fa-check text-[10px]' : 'fa-plus text-[10px]'}"></i> ${src.label}
-                </button>`;
+                const buttonClasses = active ? 'bg-accent text-white shadow-md' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700';
+                return `<button type="button" aria-label="${src.label}" aria-pressed="${active ? 'true' : 'false'}" onclick="toggleSource('${src.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${buttonClasses}"><i class="fa-solid ${active ? 'fa-check text-[10px]' : 'fa-plus text-[10px]'}"></i> ${src.label}</button>`;
             }).join('');
             updateSourcesCount();
         }
@@ -447,9 +410,7 @@
             const container = document.getElementById('platformsContainer');
             container.innerHTML = Object.entries(platformData).map(([key, p]) => {
                 const active = selectedPlatforms.has(key);
-                return `<button type="button" aria-label="${p.name}" aria-pressed="${active ? 'true' : 'false'}" onclick="togglePlatform('${key}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? `${p.color} text-white shadow-md` : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">
-                    <span class="w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-gray-500'}"></span> ${p.name}
-                </button>`;
+                return `<button type="button" aria-label="${p.name}" aria-pressed="${active ? 'true' : 'false'}" onclick="togglePlatform('${key}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? `${p.color} text-white shadow-md` : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}"><span class="w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-gray-500'}"></span> ${p.name}</button>`;
             }).join('');
         }
 
@@ -479,7 +440,7 @@
         function initGenres() {
             const container = document.getElementById('genresContainer');
             const genres = genreMap[currentMediaType];
-            let html = `<button type="button" aria-label="Tout genres" aria-pressed="${selectedGenres.has('all') ? 'true' : 'false'}" onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">Tous</button>`;
+            let html = `<button type="button" aria-label="Tous genres" aria-pressed="${selectedGenres.has('all') ? 'true' : 'false'}" onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">Tous</button>`;
             html += Object.entries(genres).map(([id, name]) => {
                 const active = selectedGenres.has(id);
                 return `<button type="button" aria-label="${name}" aria-pressed="${active ? 'true' : 'false'}" onclick="setGenre('${id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${active ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">${name}</button>`;
@@ -508,18 +469,15 @@
         async function loadCatalogue() {
             const grid = document.getElementById('mediaGrid');
             grid.innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
-
             if (!config.tmdbKey) {
                 grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-yellow-400">Entrez votre clé TMDB dans les paramètres pour lancer le catalogue.</div>`;
                 return;
             }
-
             try {
                 let items = [];
                 const url = `https://api.themoviedb.org/3/trending/${currentMediaType}/week?api_key=${config.tmdbKey}&language=fr-FR`;
                 const res = await fetchWithRetry(url);
                 const data = await res.json();
-
                 if (data.results) {
                     items = data.results.map(item => ({
                         id: item.id,
@@ -535,7 +493,6 @@
                         primaryPlatformKey: 'netflix'
                     }));
                 }
-
                 mediaCache = await enrichItemsWithProviders(items);
                 applyFilters();
             } catch (err) {
@@ -547,96 +504,60 @@
         function handleSearch() {
             clearTimeout(searchTimeout);
             searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 300);
+            searchTimeout = setTimeout(() => applyFilters(), 300);
         }
 
         function applyFilters() {
             let filtered = mediaCache.filter(item => {
                 if (searchQuery && !item.title.toLowerCase().includes(searchQuery)) return false;
-
                 const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
                 const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
                 if (!matchesPlatform) return false;
-
                 if (!selectedGenres.has('all')) {
                     const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(String(gId)));
                     if (!matchesGenre) return false;
                 }
                 return true;
             });
-
             renderGrid(filtered);
         }
 
         function renderGrid(items) {
             const grid = document.getElementById('mediaGrid');
             document.getElementById('resultsCount').innerText = `${items.length} résultat${items.length > 1 ? 's' : ''}`;
-
             if (items.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">Aucun résultat ne correspond à vos critères.</div>`;
                 return;
             }
-
             grid.innerHTML = items.map(item => {
                 const primaryKey = item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix';
                 const plat = platformData[primaryKey] || platformData.netflix;
-                return `
-                    <div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${item.title}">
-                        <div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden">
-                            <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div>
-                            <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1">
-                                <i class="fa-solid fa-star text-[9px]"></i> ${item.rating}
-                            </div>
-                            <div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end">
-                                <h3 class="font-bold text-xs text-white truncate">${item.title}</h3>
-                                <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="text-[10px] text-gray-400 font-medium">${item.year}</span>
-                                </div>
-                                <p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p>
-                            </div>
-                        </div>
-                    </div>`;
+                return `<div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${item.title}"><div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden"><img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"><div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div><div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1"><i class="fa-solid fa-star text-[9px]"></i> ${item.rating}</div><div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end"><h3 class="font-bold text-xs text-white truncate">${item.title}</h3><div class="flex items-center gap-2 mt-0.5"><span class="text-[10px] text-gray-400 font-medium">${item.year}</span></div><p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p></div></div></div>`;
             }).join('');
         }
 
         async function openDetailModal(id) {
             const item = mediaCache.find(m => m.id === id);
             if (!item) return;
-
             lastRequestedItem = item;
             document.getElementById('modalTitle').innerText = item.title;
             document.getElementById('modalYear').innerText = item.year;
             document.getElementById('modalRating').innerText = `★ ${item.rating}`;
             document.getElementById('modalOverview').innerText = item.overview;
-
             const backdrop = document.getElementById('modalBackdrop');
-            if (item.backdrop) {
-                backdrop.style.backgroundImage = `url(${item.backdrop})`;
-                backdrop.style.backgroundSize = 'cover';
-                backdrop.style.backgroundPosition = 'center';
-            } else {
-                backdrop.style.backgroundImage = `url(${item.poster})`;
-                backdrop.style.backgroundSize = 'cover';
-                backdrop.style.backgroundPosition = 'center';
-            }
-
-            const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'])
-                .map(key => {
-                    const data = platformData[key] || platformData.netflix;
-                    return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
-                })
-                .join('');
+            backdrop.style.backgroundImage = `url(${item.backdrop || item.poster})`;
+            backdrop.style.backgroundSize = 'cover';
+            backdrop.style.backgroundPosition = 'center';
+            const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix']).map(key => {
+                const data = platformData[key] || platformData.netflix;
+                return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
+            }).join('');
             document.getElementById('modalPlatforms').innerHTML = platformBadges;
-
             const genresObj = genreMap[currentMediaType];
             document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
                 const label = genresObj[gId];
                 return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
             }).join('');
-
             document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
             document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
             document.getElementById('detailModal').classList.remove('hidden');
@@ -652,7 +573,6 @@
             const container = document.getElementById('trailerContainer');
             modal.classList.remove('hidden');
             container.innerHTML = `<div class="py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
-
             try {
                 const res = await fetchWithRetry(`https://api.themoviedb.org/3/${currentMediaType}/${id}/videos?api_key=${config.tmdbKey}&language=fr-FR`);
                 const data = await res.json();
@@ -662,7 +582,6 @@
                     const dataEn = await resEn.json();
                     trailer = dataEn.results && dataEn.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
                 }
-
                 if (trailer) {
                     container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1" class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 } else {
@@ -685,7 +604,6 @@
                 openSettings();
                 return;
             }
-
             try {
                 const res = await fetchWithRetry(`${config.serverUrl}/api/v1/request`, 3, 800);
                 const response = await res.text();
@@ -693,19 +611,16 @@
                     alert('Erreur lors de l\'envoi de la demande au serveur.');
                     return;
                 }
-
                 let json;
                 try {
                     json = JSON.parse(response);
                 } catch (e) {
                     json = { ok: true };
                 }
-
                 if (json && json.error) {
                     alert(`Erreur serveur: ${json.error}`);
                     return;
                 }
-
                 alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
                 closeDetailModal();
             } catch (err) {
@@ -728,15 +643,12 @@
             config.tmdbKey = document.getElementById('settingTmdbKey').value.trim();
             config.serverUrl = document.getElementById('settingServerUrl').value.trim().replace(/\/+$/, '');
             config.serverKey = document.getElementById('settingServerKey').value.trim();
-
             localStorage.removeItem('streamhub_tmdb');
             localStorage.removeItem('streamhub_url');
             localStorage.removeItem('streamhub_key');
-
             saveEncryptedValue('streamhub_tmdb', config.tmdbKey);
             saveEncryptedValue('streamhub_url', config.serverUrl);
             saveEncryptedValue('streamhub_key', config.serverKey);
-
             closeSettings();
             loadCatalogue();
             alert('Paramètres enregistrés avec succès !');
