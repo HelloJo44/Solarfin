@@ -46,7 +46,7 @@ docker compose up -d --build solarfin
 
 | Page d'accueil / Recherche | Modale de détails & Profils |
 | --- | --- |
-| *![Bannière Solarfin](./acceuil.png)* | *[Insérer une capture de la modale ici]* |
+| *![Bannière Solarfin](./acceuil.png)* | *[portable.jpeg]* |
 
 ---
 
