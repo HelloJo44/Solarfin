@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  solarfin:
-    build: .
+ solarfin:
+    build: ./solarfin
     container_name: solarfin
     restart: unless-stopped
     ports:
-      - "8889:80" # Vous pouvez changer 8889 par un autre port libre si besoin (ex: 8090:80)
+      - "8889:80" # Vous pouvez changer 8889 par un autre port libre si besoin (ex: 8090:80)    
