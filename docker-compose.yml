@@ -6,4 +6,4 @@ services:
     container_name: solarfin
     restart: unless-stopped
     ports:
-      - "8080:80" # Vous pouvez changer 8080 par un autre port libre si besoin (ex: 8090:80)
+      - "8889:80" # Vous pouvez changer 8889 par un autre port libre si besoin (ex: 8090:80)
