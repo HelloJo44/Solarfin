@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <!-- <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
@@ -144,7 +144,110 @@
                 </div>
             </div>
         </div>
+    </div> -->
+
+       
+<!--     <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                <button type="button" aria-label="Fermer la fiche" onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
+                        <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
+                        <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
+                    </div>
+                    <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
+                    <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+                <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
+
+                 NOUVELLES OPTIONS SEER / OVERSEERR 
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-800/80">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Langue souhaitée</label>
+                        <select id="requestLanguage" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
+                            <option value="fr" selected>🇫🇷 Français (FR)</option>
+                            <option value="en">🇬🇧 Anglais (VO)</option>
+                            <option value="multi">🌐 Multi-langue</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Qualité</label>
+                        <select id="requestQuality" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
+                            <option value="1080p" selected>1080p Full HD</option>
+                            <option value="2160p">4K / UHD</option>
+                            <option value="720p">720p HD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button id="modalTrailerBtn" type="button" aria-label="Voir la bande-annonce" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
+                        <i class="fa-solid fa-play text-accent"></i> Bande-annonce
+                    </button>
+                    <button id="modalRequestBtn" type="button" aria-label="Envoyer la demande à Seer" onclick="" class="flex-2 bg-gradient-to-r from-accent to-red-600 hover:from-accentHover hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
+                        <i class="fa-solid fa-paper-plane"></i> Envoyer à Seer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> 
+-->
+    <!-- DEBUT MODIFICATION : Modale de détails avec menus dynamiques Seer -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                <button type="button" aria-label="Fermer la fiche" onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
+                        <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
+                        <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
+                    </div>
+                    <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
+                    <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+                <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
+
+                <!-- MENUS DE PROFILS CHARGÉS DYNAMIQUEMENT DEPUIS SEER -->
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-800/80">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Profil de Qualité</label>
+                        <select id="requestQualityProfile" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Profil de Langue</label>
+                        <select id="requestLanguageProfile" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button id="modalTrailerBtn" type="button" aria-label="Voir la bande-annonce" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
+                        <i class="fa-solid fa-play text-accent"></i> Bande-annonce
+                    </button>
+                    <button id="modalRequestBtn" type="button" aria-label="Envoyer la demande à Seer" onclick="" class="flex-2 bg-gradient-to-r from-accent to-red-600 hover:from-accentHover hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
+                        <i class="fa-solid fa-paper-plane"></i> Envoyer à Seer
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- FIN MODIFICATION : Modale de détails avec menus dynamiques Seer -->  
 
     <div id="settingsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
@@ -545,7 +648,7 @@
             }).join('');
         }
 
-        async function openDetailModal(id) {
+     /*    async function openDetailModal(id) {
             const item = mediaCache.find(m => m.id === id);
             if (!item) return;
             lastRequestedItem = item;
@@ -570,7 +673,7 @@
             document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
             document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
             document.getElementById('detailModal').classList.remove('hidden');
-        }
+        } */
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
@@ -638,7 +741,7 @@
         // }
 
   
-        async function sendRequest(id) {
+/*         async function sendRequest(id) {
             const item = mediaCache.find(m => m.id === id);
             if (!config.serverUrl || !config.serverKey) {
                 alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
@@ -672,8 +775,211 @@
             }
         }
     
+ */
 
+    /* async function sendRequest(id) {
+        const item = mediaCache.find(m => m.id === id);
+        if (!config.serverUrl || !config.serverKey) {
+            alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
+            openSettings();
+            return;
+        }
 
+        const selectedLang = document.getElementById('requestLanguage').value;
+        const selectedQuality = document.getElementById('requestQuality').value;
+
+        try {
+            const payload = {
+                mediaType: currentMediaType,
+                mediaId: Number(id),
+                // Définition de la langue audio / subs souhaitée
+                languageProfileId: selectedLang === 'fr' ? 1 : 0, 
+                // Transfert des métadonnées personnalisées
+                is4k: selectedQuality === '2160p'
+            };
+
+            // Si c'est une série, on demande par défaut la première saison ou toutes les saisons
+            if (currentMediaType === 'tv') {
+                payload.seasons = 'all';
+            }
+
+            const res = await fetch(`${config.serverUrl}/api/v1/request`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Api-Key': config.serverKey
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
+                return;
+            }
+
+            alert(`Demande pour "${item.title}" (${selectedLang.toUpperCase()} - ${selectedQuality}) envoyée avec succès à Seer !`);
+            closeDetailModal();
+        } catch (err) {
+            console.error(err);
+            alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL et votre réseau.');
+        }
+    }
+    */
+    //<!-- DEBUT MODIFICATION : Fonctions Seer dynamique (Profils, Ouverture & Envoi) -->
+
+    // Cache local des profils Seer pour éviter des requêtes inutiles
+    let seerProfilesCache = {
+        movie: { qualityProfiles: [], languageProfiles: [] },
+        tv: { qualityProfiles: [], languageProfiles: [] }
+    };
+
+    // Fonction pour récupérer les profils Radarr/Sonarr depuis Seer
+    async function fetchSeerProfiles(type) {
+        if (!config.serverUrl || !config.serverKey) return;
+        const endpoint = type === 'movie' ? '/api/v1/settings/radarr' : '/api/v1/settings/sonarr';
+        
+        try {
+            const res = await fetch(`${config.serverUrl}${endpoint}`, {
+                headers: { 'X-Api-Key': config.serverKey }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            // Seer renvoie la liste des serveurs configurés
+            const server = Array.isArray(data) && data.length > 0 ? data[0] : null;
+            if (server) {
+                seerProfilesCache[type].qualityProfiles = server.profiles || [];
+                // Si des profils de langue spécifiques existent dans la réponse
+                seerProfilesCache[type].languageProfiles = server.languageProfiles || [];
+            }
+        } catch (e) {
+            console.warn('Impossible de charger les profils Seer:', e);
+        }
+    }
+
+    async function populateSeerProfileSelects() {
+        const qualitySelect = document.getElementById('requestQualityProfile');
+        const languageSelect = document.getElementById('requestLanguageProfile');
+        
+        qualitySelect.innerHTML = '<option value="">Chargement...</option>';
+        languageSelect.innerHTML = '<option value="">Chargement...</option>';
+
+        // Charger les profils si pas encore en cache
+        if (!seerProfilesCache[currentMediaType].qualityProfiles.length) {
+            await fetchSeerProfiles(currentMediaType);
+        }
+
+        const { qualityProfiles, languageProfiles } = seerProfilesCache[currentMediaType];
+
+        // Remplissage du select Qualité
+        if (qualityProfiles.length > 0) {
+            qualitySelect.innerHTML = qualityProfiles.map(p => 
+                `<option value="${p.id}">${p.name}</option>`
+            ).join('');
+        } else {
+            qualitySelect.innerHTML = '<option value="">Par défaut (Seer)</option>';
+        }
+
+        // Remplissage du select Langue
+        if (languageProfiles.length > 0) {
+            languageSelect.innerHTML = languageProfiles.map(p => 
+                `<option value="${p.id}">${p.name}</option>`
+            ).join('');
+        } else {
+            languageSelect.innerHTML = '<option value="">Par défaut (Seer)</option>';
+        }
+    }
+
+    async function openDetailModal(id) {
+        const item = mediaCache.find(m => m.id === id);
+        if (!item) return;
+        lastRequestedItem = item;
+        
+        document.getElementById('modalTitle').innerText = item.title;
+        document.getElementById('modalYear').innerText = item.year;
+        document.getElementById('modalRating').innerText = `★ ${item.rating}`;
+        document.getElementById('modalOverview').innerText = item.overview;
+        
+        const backdrop = document.getElementById('modalBackdrop');
+        backdrop.style.backgroundImage = `url(${item.backdrop || item.poster})`;
+        backdrop.style.backgroundSize = 'cover';
+        backdrop.style.backgroundPosition = 'center';
+        
+        const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix']).map(key => {
+            const data = platformData[key] || platformData.netflix;
+            return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
+        }).join('');
+        document.getElementById('modalPlatforms').innerHTML = platformBadges;
+        
+        const genresObj = genreMap[currentMediaType];
+        document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
+            const label = genresObj[gId];
+            return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
+        }).join('');
+
+        document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
+        document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
+        
+        document.getElementById('detailModal').classList.remove('hidden');
+
+        // Charger dynamiquement les profils configurés dans Seer/Radarr/Sonarr
+        populateSeerProfileSelects();
+    }
+
+    async function sendRequest(id) {
+        const item = mediaCache.find(m => m.id === id);
+        if (!config.serverUrl || !config.serverKey) {
+            alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
+            openSettings();
+            return;
+        }
+
+        const qualityProfileId = document.getElementById('requestQualityProfile').value;
+        const languageProfileId = document.getElementById('requestLanguageProfile').value;
+
+        try {
+            const payload = {
+                mediaType: currentMediaType,
+                mediaId: Number(id)
+            };
+
+            // Ajout des identifiants s'ils ont été récupérés
+            if (qualityProfileId) {
+                payload.qualityProfileId = Number(qualityProfileId);
+            }
+            if (languageProfileId) {
+                payload.languageProfileId = Number(languageProfileId);
+            }
+
+            // Si c'est une série, demander toutes les saisons
+            if (currentMediaType === 'tv') {
+                payload.seasons = 'all';
+            }
+
+            const res = await fetch(`${config.serverUrl}/api/v1/request`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Api-Key': config.serverKey
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
+                return;
+            }
+
+            alert(`Demande pour "${item.title}" envoyée avec succès à Seer !`);
+            closeDetailModal();
+        } catch (err) {
+            console.error(err);
+            alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL et votre réseau.');
+        }
+    }
+//<!-- FIN MODIFICATION : Fonctions Seer dynamique -->
 
 
         
