@@ -2,7 +2,7 @@
   "name": "Solarfin - Film & Série Catalogue",
   "short_name": "Solarfin",
   "description": "Catalogue de films et séries avec Overseerr/Moonfin",
-  "start_url": "./Index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -10,7 +10,7 @@
   "theme_color": "#f97316",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='grad' x1='0%ari' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23f97316'/><stop offset='100%' stop-color='%23dc2626'/></linearGradient></defs><rect fill='url(%23grad)' width='192' height='192' rx='45'/><text x='96' y='96' font-size='100' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>☀️</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23f97316'/><stop offset='100%' stop-color='%23dc2626'/></linearGradient></defs><rect fill='url(%23grad)' width='192' height='192' rx='45'/><text x='96' y='96' font-size='100' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>☀️</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
