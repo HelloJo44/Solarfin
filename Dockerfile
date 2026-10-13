@@ -4,4 +4,6 @@ FROM nginx:alpine
 COPY index.html /usr/share/nginx/html/index.html
 COPY manifest.json /usr/share/nginx/html/manifest.json
 COPY sw.js /usr/share/nginx/html/sw.js
-COPY default.conf /etc/nginx/conf.d/default.conf
+
+# Modèle de configuration : au démarrage, l'image nginx remplace ${SEER_URL} par la variable d'environnement
+COPY default.conf.template /etc/nginx/templates/default.conf.template
