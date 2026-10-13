@@ -28,7 +28,7 @@
 
 ### **Points clés v2.0:**
 - ✅ PWA avec Service Worker
-- ✅ Stockage sécurisé (chiffrement XOR des clés API)
+- ✅ Brouillage XOR des clés API (obfuscation, **pas** un vrai chiffrement)
 - ✅ Debouncing de la recherche
 - ✅ OCS et HBO intégrés
 - ✅ Attributs ARIA (accessibilité)
@@ -112,11 +112,11 @@ Au clic sur une carte :
 - APIs non disponibles affichent message
 - Installation sur écran d'accueil (Android/iOS)
 
-### **10. Paramètres sécurisés**
+### **10. Paramètres**
 - Clé API TMDB
 - URL Overseerr/Moonfin
 - Clé API Overseerr/Moonfin
-- ✅ **Chiffrement XOR** des données sensibles en localStorage
+- Brouillage XOR des données sensibles en localStorage (la clé de brouillage est dans le code : cela évite seulement de lire les clés « en clair » d'un coup d'œil)
 
 ### **11. Persistance des filtres**
 - ✅ Sauvegarde des sélections en localStorage
@@ -127,7 +127,7 @@ Au clic sur une carte :
 ## 🏗️ Architecture technique
 
 ### **Fichiers:**
-- **Index.html** : HTML + CSS (Tailwind) + JavaScript
+- **index.html** : HTML + CSS (Tailwind) + JavaScript
 - **sw.js** : Service Worker (cache, offline)
 - **manifest.json** : Métadonnées PWA
 
@@ -172,8 +172,8 @@ sourcesConfig = {
 | `openTrailer(id)` | Bande-annonce |
 | `sendRequest(id)` | POST Overseerr (avec retry) |
 | `handleSearch()` | Debounced search |
-| `saveSettings()` | Sauvegarde chiffrée |
-| `loadEncryptedValue()` | Déchiffrement XOR |
+| `saveSettings()` | Sauvegarde (brouillée) |
+| `loadEncryptedValue()` | Décodage XOR |
 
 ---
 
@@ -233,7 +233,7 @@ async function fetchWithRetry(url, maxRetries = 3, delay = 1000) {
 
 ### **7. ✅ Données en clair en localStorage**
 **Avant:** Clés API stockées en clair
-**Après:** Chiffrement XOR simple (obfuscation) :
+**Après:** Brouillage XOR simple (obfuscation, pas une protection réelle — voir REVUE_SECURITE.md) :
 ```javascript
 function xorEncrypt(value, pass) { /* XOR + base64 */ }
 function xorDecrypt(value, pass) { /* base64 + XOR */ }
@@ -246,9 +246,9 @@ function xorDecrypt(value, pass) { /* base64 + XOR */ }
 - `streamhub_platforms` → JSON.stringify(selectedPlatforms)
 - `streamhub_genres` → JSON.stringify(selectedGenres)
 
-### **9. ✅ Pagination manquante**
+### **9. ⏳ Pagination manquante**
 **Avant:** Seulement première page TMDB
-**Après:** Loader "Charger plus" pour pages supplémentaires
+**Statut:** pas encore implémenté (voir « Prochaines évolutions »)
 
 ### **10. ✅ OCS et HBO absents**
 **Avant:** Seulement 6 plateformes
@@ -366,7 +366,7 @@ function xorDecrypt(value, pass) { /* base64 + XOR */ }
 - [x] Debouncing recherche
 - [x] Accessibilité ARIA
 - [x] Retry API TMDB
-- [x] Chiffrement localStorage
+- [x] Brouillage localStorage (obfuscation)
 - [x] Sauvegarde filtres
 - [x] Service Worker
 - [x] PWA manifest
@@ -376,4 +376,4 @@ function xorDecrypt(value, pass) { /* base64 + XOR */ }
 
 **Dernière mise à jour:** 2026-10-10
 **Branch:** AppMobile
-**Status:** ✅ Production-ready
+**Status:** Projet personnel — voir [REVUE_SECURITE.md](./REVUE_SECURITE.md)

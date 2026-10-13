@@ -1,9 +1,11 @@
-version: '3.8'
-
 services:
- solarfin:
-    build: ./solarfin
+  solarfin:
+    # "." si vous lancez depuis ce dépôt ; "./solarfin" si ce service est ajouté à une stack existante
+    build: .
     container_name: solarfin
     restart: unless-stopped
+    environment:
+      # Adresse de votre Seer/Overseerr, définie dans .env (voir .env.example)
+      SEER_URL: ${SEER_URL:?Définissez SEER_URL dans le fichier .env}
     ports:
-      - "8080:80" # Vous pouvez changer 8080 par un autre port libre si besoin (ex: 8090:80)    
+      - "8080:80" # Vous pouvez changer 8080 par un autre port libre si besoin (ex: 8090:80)

@@ -1,0 +1,38 @@
+server {
+    listen 80;
+    server_name localhost;
+    server_tokens off;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    # Compression Gzip pour accélérer les transferts
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # En-têtes de sécurité (hérités par les blocs location ci-dessous, qui n'utilisent pas add_header)
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+        # Cache des fichiers statiques pour 1 jour
+        expires 1d;
+    }
+
+    # Jamais de cache pour la page, les scripts, le manifest et le Service Worker : sinon les mises à jour mettent 24 h à arriver
+    location = /index.html { expires -1; }
+    location ~* \.(?:js|json)$ { expires -1; }
+
+    # Reverse proxy vers Seer/Overseerr. SEER_URL est défini dans le fichier .env (non versionné),
+    # ce qui évite de publier l'adresse de votre serveur sur GitHub.
+    location /api/ {
+        proxy_pass ${SEER_URL}/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}

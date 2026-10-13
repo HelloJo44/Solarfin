@@ -2,13 +2,14 @@
 <html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solarfin - Overseerr / Moonfin Client</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Solarfin">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Version figée : sans numéro, le CDN sert toujours la dernière version (script tiers non contrôlé) -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -28,7 +29,7 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .spring-active:active { transform: scale(0.96); transition: transform 0.1s ease; }
         .glass-panel { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -48,8 +49,9 @@
             </div>
 
             <div class="bg-gray-900/90 p-1 rounded-2xl border border-gray-800 flex items-center shadow-inner">
-                <button id="typeMovie" type="button" aria-label="Afficher les films" aria-pressed="true" onclick="switchMediaType('movie')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
-                <button id="typeTv" type="button" aria-label="Afficher les séries" aria-pressed="false" onclick="switchMediaType('tv')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+                <button id="typeMovie" type="button" aria-label="Afficher les films" aria-pressed="true" onclick="switchMediaType('movie')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
+                <button id="typeTv" type="button" aria-label="Afficher les séries" aria-pressed="false" onclick="switchMediaType('tv')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+                <button id="typeKids" type="button" aria-label="Afficher l'espace enfants" aria-pressed="false" onclick="switchMediaType('kids')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Enfants</button>
             </div>
 
             <button type="button" aria-label="Ouvrir les paramètres" onclick="openSettings()" class="w-9 h-9 rounded-xl bg-gray-800/80 border border-gray-700/60 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 shadow-md spring-active">
@@ -66,7 +68,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-4 space-y-6">
-        <section class="space-y-2">
+        <section id="sourcesSection" class="space-y-2">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-compass text-accent"></i> Sources de recommandations
@@ -74,6 +76,26 @@
                 <span id="sourcesCount" class="text-[10px] text-gray-500 font-medium">1 sélectionnée</span>
             </div>
             <div id="sourcesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Sources de recommandations"></div>
+        </section>
+
+        <!-- Onglet Enfants : tranche d'âge, vues (catalogue / recommandations / historique) -->
+        <section id="kidsSection" class="space-y-4 hidden">
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-child-reaching text-emerald-400"></i> Âge de l'enfant
+                    </h2>
+                    <span class="text-[10px] text-gray-500 font-medium">Films adaptés jusqu'à cet âge</span>
+                </div>
+                <div id="kidsAgeContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="group" aria-label="Tranche d'âge"></div>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-heart text-pink-400"></i> Mes films
+                </h2>
+                <div id="kidsViewContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="group" aria-label="Affichage"></div>
+                <div id="kidsSeedContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 hidden" role="group" aria-label="Recommandations à partir de"></div>
+            </div>
         </section>
 
         <section class="space-y-2">
@@ -102,6 +124,11 @@
         </section>
     </main>
 
+    <!-- Mention exigée par les conditions d'utilisation de l'API TMDB -->
+    <footer class="max-w-7xl mx-auto px-4 pb-6 text-center text-[10px] text-gray-600">
+        Données et images fournies par <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-400">TMDB</a>. Ce produit utilise l'API TMDB mais n'est ni approuvé ni certifié par TMDB.
+    </footer>
+
     <div id="trailerModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-4 border-b border-gray-800">
@@ -114,91 +141,6 @@
         </div>
     </div>
 
-    <!-- <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                <button type="button" aria-label="Fermer la fiche" onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-            <div class="p-5 space-y-4 overflow-y-auto flex-1">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
-                        <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
-                        <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
-                    </div>
-                    <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
-                    <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
-                </div>
-                <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
-
-                <div class="pt-2 flex gap-3">
-                    <button id="modalTrailerBtn" type="button" aria-label="Voir la bande-annonce" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
-                        <i class="fa-solid fa-play text-accent"></i> Bande-annonce
-                    </button>
-                    <button id="modalRequestBtn" type="button" aria-label="Envoyer la demande à Overseerr ou Moonfin" onclick="" class="flex-2 bg-gradient-to-r from-accent to-red-600 hover:from-accentHover hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
-                        <i class="fa-solid fa-paper-plane"></i> Envoyer à Overseerr / Moonfin
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-       
-<!--     <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="relative w-full aspect-[16/9] bg-gray-950" id="modalBackdrop">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                <button type="button" aria-label="Fermer la fiche" onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/80">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-            <div class="p-5 space-y-4 overflow-y-auto flex-1">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
-                        <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
-                        <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
-                    </div>
-                    <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
-                    <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
-                </div>
-                <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
-
-                 NOUVELLES OPTIONS SEER / OVERSEERR 
-                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-800/80">
-                    <div>
-                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Langue souhaitée</label>
-                        <select id="requestLanguage" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
-                            <option value="fr" selected>🇫🇷 Français (FR)</option>
-                            <option value="en">🇬🇧 Anglais (VO)</option>
-                            <option value="multi">🌐 Multi-langue</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Qualité</label>
-                        <select id="requestQuality" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-accent">
-                            <option value="1080p" selected>1080p Full HD</option>
-                            <option value="2160p">4K / UHD</option>
-                            <option value="720p">720p HD</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="pt-2 flex gap-3">
-                    <button id="modalTrailerBtn" type="button" aria-label="Voir la bande-annonce" onclick="" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
-                        <i class="fa-solid fa-play text-accent"></i> Bande-annonce
-                    </button>
-                    <button id="modalRequestBtn" type="button" aria-label="Envoyer la demande à Seer" onclick="" class="flex-2 bg-gradient-to-r from-accent to-red-600 hover:from-accentHover hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 spring-active">
-                        <i class="fa-solid fa-paper-plane"></i> Envoyer à Seer
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div> 
--->
     <!-- DEBUT MODIFICATION : Modale de détails avec menus dynamiques Seer -->
     <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-gray-900 border-t sm:border border-gray-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
@@ -213,12 +155,22 @@
                     <div class="flex items-center gap-2 mb-1">
                         <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
                         <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
+                        <span id="modalAge" class="hidden px-2 py-0.5 rounded-lg bg-emerald-600 text-white text-xs font-bold"></span>
                         <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
                     </div>
                     <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
                     <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
                 </div>
                 <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
+
+                <!-- Onglet Enfants : statut de visionnage et "J'aime" -->
+                <div id="modalKidsActions" class="hidden space-y-2">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="modalSeenBtn" type="button" aria-pressed="false" onclick="" class="py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border"></button>
+                        <button id="modalLikedBtn" type="button" aria-pressed="false" onclick="" class="py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border"></button>
+                    </div>
+                    <p id="modalAgeSource" class="text-[10px] text-gray-500"></p>
+                </div>
 
                 <!-- MENUS DE PROFILS CHARGÉS DYNAMIQUEMENT DEPUIS SEER -->
                 <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-800/80">
@@ -260,21 +212,24 @@
             <div class="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="block text-gray-400 font-medium">Clé API TMDB</label>
-                        <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-[10px] text-accent hover:underline flex items-center gap-1">
+                        <label for="settingTmdbKey" class="block text-gray-400 font-medium">Clé API TMDB</label>
+                        <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[10px] text-accent hover:underline flex items-center gap-1">
                             <i class="fa-solid fa-external-link-alt"></i> Créer une clé TMDB
                         </a>
                     </div>
-                    <input type="text" id="settingTmdbKey" placeholder="Votre clé API v3 TMDB" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                    <input type="password" id="settingTmdbKey" autocomplete="off" placeholder="Votre clé API v3 TMDB" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1 font-medium">URL Overseerr / Moonfin</label>
-                    <input type="text" id="settingServerUrl" placeholder="https://overseerr.monserveur.com" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                    <label for="settingServerUrl" class="block text-gray-400 mb-1 font-medium">URL Overseerr / Moonfin</label>
+                    <input type="url" id="settingServerUrl" placeholder="https://overseerr.monserveur.com" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1 font-medium">Clé API Overseerr / Moonfin</label>
-                    <input type="password" id="settingServerKey" placeholder="Clé API Overseerr" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
+                    <label for="settingServerKey" class="block text-gray-400 mb-1 font-medium">Clé API Overseerr / Moonfin</label>
+                    <input type="password" id="settingServerKey" autocomplete="off" placeholder="Clé API Overseerr" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-gray-200 focus:outline-none focus:border-accent">
                 </div>
+                <p class="text-[10px] text-gray-500 leading-relaxed">
+                    <i class="fa-solid fa-circle-info"></i> Les clés restent dans ce navigateur uniquement (simple brouillage, pas un vrai chiffrement). N'utilisez pas l'application sur un appareil partagé.
+                </p>
                 <button type="button" aria-label="Enregistrer les paramètres" onclick="saveSettings()" class="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 spring-active">
                     Enregistrer les paramètres
                 </button>
@@ -282,8 +237,22 @@
         </div>
     </div>
 
+    <script src="./kids.js"></script>
     <script>
+        // Attention : ce XOR est un simple brouillage, pas un chiffrement. La "clé" est publique
+        // (elle est dans ce fichier), donc n'importe quel script de la page peut relire les valeurs.
         const STORAGE_PASS = 'Solarfin-Local-Obfuscation-Key-v1';
+
+        // Échappe les données externes (TMDB, Seer) avant de les insérer via innerHTML.
+        // Les titres/synopsis TMDB sont modifiables par n'importe quel contributeur : sans ça,
+        // un titre piégé pourrait exécuter du JavaScript et lire les clés API stockées.
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
+        const POSTER_PLACEHOLDER = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 750'><rect width='500' height='750' fill='#1f2937'/><text x='250' y='375' font-family='sans-serif' font-size='32' fill='#6b7280' text-anchor='middle'>Pas d'affiche</text></svg>");
 
         function xorEncrypt(value, pass) {
             if (!value) return '';
@@ -343,6 +312,15 @@
         let mediaCache = [];
         let lastRequestedItem = null;
         let searchTimeout = null;
+
+        // Onglet Enfants (logique métier dans kids.js)
+        let isKidsMode = false;
+        let kidsState = SolarfinKids.loadState(localStorage);
+        let kidsRecoCache = [];
+        let kidsRecoDirty = true;
+        let kidsRecoLoading = false;
+        let kidsSeedId = 'all';
+        const kidsDetailsCache = new Map();
 
         let config = {
             tmdbKey: loadEncryptedValue('streamhub_tmdb') || '',
@@ -408,23 +386,23 @@
             saveJsonValue('streamhub_genres', Array.from(selectedGenres));
         }
 
-        function fetchWithRetry(url, maxRetries = 3, delay = 800) {
-            return new Promise(async (resolve, reject) => {
-                for (let attempt = 0; attempt < maxRetries; attempt++) {
-                    try {
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            if (attempt === maxRetries - 1) return reject(new Error('HTTP ' + response.status));
-                            await new Promise(r => setTimeout(r, delay * (attempt + 1)));
-                            continue;
-                        }
-                        return resolve(response);
-                    } catch (error) {
-                        if (attempt === maxRetries - 1) return reject(error);
-                        await new Promise(r => setTimeout(r, delay * (attempt + 1)));
-                    }
+        async function fetchWithRetry(url, maxRetries = 3, delay = 800) {
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                const isLastAttempt = attempt === maxRetries - 1;
+                let response;
+                try {
+                    response = await fetch(url);
+                } catch (error) {
+                    if (isLastAttempt) throw error;
+                    await new Promise(r => setTimeout(r, delay * Math.pow(2, attempt)));
+                    continue;
                 }
-            });
+                if (response.ok) return response;
+                // Inutile de réessayer une erreur client (clé invalide, 404...), sauf 429 (trop de requêtes)
+                const retryable = response.status === 429 || response.status >= 500;
+                if (!retryable || isLastAttempt) throw new Error('HTTP ' + response.status);
+                await new Promise(r => setTimeout(r, delay * Math.pow(2, attempt)));
+            }
         }
 
         function normalizeProviderKey(providerName = '', providerId = null) {
@@ -468,6 +446,13 @@
             return enriched;
         }
 
+        // Le Service Worker (sw.js) n'était jamais enregistré : le mode hors ligne ne fonctionnait pas
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service Worker non enregistré :', err));
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             restoreSelections();
             initSources();
@@ -477,11 +462,19 @@
         });
 
         function switchMediaType(type) {
-            currentMediaType = type;
-            document.getElementById('typeMovie').className = type === 'movie' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
-            document.getElementById('typeTv').className = type === 'tv' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
-            document.getElementById('typeMovie').setAttribute('aria-pressed', type === 'movie' ? 'true' : 'false');
-            document.getElementById('typeTv').setAttribute('aria-pressed', type === 'tv' ? 'true' : 'false');
+            // L'onglet Enfants ne contient que des films : les appels TMDB/Seer restent en type "movie"
+            isKidsMode = type === 'kids';
+            currentMediaType = isKidsMode ? 'movie' : type;
+            [['typeMovie', 'movie'], ['typeTv', 'tv'], ['typeKids', 'kids']].forEach(([buttonId, buttonType]) => {
+                const button = document.getElementById(buttonId);
+                const active = buttonType === type;
+                button.className = `px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 ${active ? 'bg-accent text-white shadow-md' : 'text-gray-400 hover:text-white'}`;
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            document.getElementById('sourcesSection').classList.toggle('hidden', isKidsMode);
+            document.getElementById('kidsSection').classList.toggle('hidden', !isKidsMode);
+            mediaCache = [];
+            if (isKidsMode) initKids();
             selectedSources.clear();
             selectedSources.add('trending');
             selectedGenres.clear();
@@ -551,7 +544,9 @@
 
         function initGenres() {
             const container = document.getElementById('genresContainer');
-            const genres = genreMap[currentMediaType];
+            // Dans l'onglet Enfants, on masque les genres qui n'y ont pas leur place (horreur, thriller...)
+            const genres = Object.fromEntries(Object.entries(genreMap[currentMediaType])
+                .filter(([id]) => !isKidsMode || !SolarfinKids.NOT_FOR_KIDS_GENRES.includes(Number(id))));
             let html = `<button type="button" aria-label="Tous genres" aria-pressed="${selectedGenres.has('all') ? 'true' : 'false'}" onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">Tous</button>`;
             html += Object.entries(genres).map(([id, name]) => {
                 const active = selectedGenres.has(id);
@@ -578,6 +573,25 @@
             applyFilters();
         }
 
+        // Convertit un résultat TMDB (trending, discover, recommendations) en élément du catalogue
+        function toMediaItem(item) {
+            return {
+                id: item.id,
+                title: item.title || item.name,
+                overview: item.overview || 'Aucun synopsis disponible.',
+                poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : POSTER_PLACEHOLDER,
+                backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
+                rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 'N/A',
+                voteAverage: Number(item.vote_average) || 0,
+                voteCount: Number(item.vote_count) || 0,
+                year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
+                genre_ids: item.genre_ids || [],
+                sourceFeed: Array.from(selectedSources)[0] || 'trending',
+                platformKeys: [],
+                primaryPlatformKey: 'netflix'
+            };
+        }
+
         async function loadCatalogue() {
             const grid = document.getElementById('mediaGrid');
             grid.innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
@@ -585,25 +599,14 @@
                 grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-yellow-400">Entrez votre clé TMDB dans les paramètres pour lancer le catalogue.</div>`;
                 return;
             }
+            if (isKidsMode) return loadKidsCatalogue();
             try {
                 let items = [];
                 const url = `https://api.themoviedb.org/3/trending/${currentMediaType}/week?api_key=${config.tmdbKey}&language=fr-FR`;
                 const res = await fetchWithRetry(url);
                 const data = await res.json();
                 if (data.results) {
-                    items = data.results.map(item => ({
-                        id: item.id,
-                        title: item.title || item.name,
-                        overview: item.overview || 'Aucun synopsis disponible.',
-                        poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=Pas+d+affiche',
-                        backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
-                        rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 'N/A',
-                        year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
-                        genre_ids: item.genre_ids || [],
-                        sourceFeed: Array.from(selectedSources)[0] || 'trending',
-                        platformKeys: [],
-                        primaryPlatformKey: 'netflix'
-                    }));
+                    items = data.results.map(toMediaItem);
                 }
                 mediaCache = await enrichItemsWithProviders(items);
                 applyFilters();
@@ -620,60 +623,362 @@
         }
 
         function applyFilters() {
-            let filtered = mediaCache.filter(item => {
+            if (isKidsMode && kidsRecoLoading && kidsState.view === 'reco') return; // la grille affiche le chargement
+            const source = isKidsMode ? getKidsViewItems() : mediaCache;
+            const allPlatformsSelected = selectedPlatforms.size === Object.keys(platformData).length;
+            let filtered = source.filter(item => {
                 if (searchQuery && !item.title.toLowerCase().includes(searchQuery)) return false;
-                const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
-                const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
-                if (!matchesPlatform) return false;
+                if (isKidsMode) {
+                    if (item.ageBand === null || item.ageBand === undefined || item.ageBand > kidsState.maxAge) return false;
+                    // Pas de plateforme inventée ici : un film sans plateforme connue n'est masqué que si le filtre est actif
+                    if (!allPlatformsSelected && !(item.platformKeys || []).some(key => selectedPlatforms.has(key))) return false;
+                } else {
+                    const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
+                    const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
+                    if (!matchesPlatform) return false;
+                }
                 if (!selectedGenres.has('all')) {
                     const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(String(gId)));
                     if (!matchesGenre) return false;
                 }
                 return true;
             });
-            renderGrid(filtered);
+            renderGrid(filtered, isKidsMode && !source.length ? kidsEmptyMessage() : undefined);
         }
 
-        function renderGrid(items) {
+        function renderGrid(items, emptyMessage = 'Aucun résultat ne correspond à vos critères.') {
             const grid = document.getElementById('mediaGrid');
             document.getElementById('resultsCount').innerText = `${items.length} résultat${items.length > 1 ? 's' : ''}`;
             if (items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">Aucun résultat ne correspond à vos critères.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">${emptyMessage}</div>`;
                 return;
             }
+            const showReason = isKidsMode && kidsState.view === 'reco';
             grid.innerHTML = items.map(item => {
-                const primaryKey = item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix';
-                const plat = platformData[primaryKey] || platformData.netflix;
-                return `<div onclick="openDetailModal(${item.id})" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${item.title}"><div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden"><img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"><div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div><div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1"><i class="fa-solid fa-star text-[9px]"></i> ${item.rating}</div><div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end"><h3 class="font-bold text-xs text-white truncate">${item.title}</h3><div class="flex items-center gap-2 mt-0.5"><span class="text-[10px] text-gray-400 font-medium">${item.year}</span></div><p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${item.overview}</p></div></div></div>`;
+                // Onglet Enfants : seulement la vraie plateforme (ou aucun badge) ; ailleurs, comportement d'origine
+                const primaryKey = isKidsMode ? (item.platformKeys || [])[0] : (item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix');
+                const plat = isKidsMode ? platformData[primaryKey] : (platformData[primaryKey] || platformData.netflix);
+                const platformBadge = plat ? `<div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div>` : '';
+                const id = Number(item.id);
+                const title = escapeHtml(item.title);
+                let kidsBadges = '';
+                if (isKidsMode) {
+                    const entry = SolarfinKids.getEntry(kidsState, id);
+                    kidsBadges = `${ageBadge(item, 'text-[10px] px-1.5 rounded-md')}`
+                        + (entry && entry.seen ? '<i class="fa-solid fa-eye text-[10px] text-sky-300" title="Déjà vu" aria-label="Déjà vu"></i>' : '')
+                        + (entry && entry.liked ? '<i class="fa-solid fa-heart text-[10px] text-pink-500" title="Aimé" aria-label="Aimé"></i>' : '');
+                }
+                const bottomLine = showReason && item.reasonTitle
+                    ? `<p class="text-[10px] text-emerald-300 line-clamp-2 mt-1 leading-tight"><i class="fa-solid fa-wand-magic-sparkles"></i> Parce que tu as aimé ${escapeHtml(item.reasonTitle)}</p>`
+                    : `<p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${escapeHtml(item.overview)}</p>`;
+                return `<div onclick="openDetailModal(${id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailModal(${id});}" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${title}"><div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden"><img src="${escapeHtml(item.poster)}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">${platformBadge}<div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1"><i class="fa-solid fa-star text-[9px]"></i> ${escapeHtml(item.rating)}</div><div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end"><h3 class="font-bold text-xs text-white truncate">${title}</h3><div class="flex items-center gap-2 mt-0.5"><span class="text-[10px] text-gray-400 font-medium">${escapeHtml(item.year)}</span>${kidsBadges}</div>${bottomLine}</div></div></div>`;
             }).join('');
         }
 
-     /*    async function openDetailModal(id) {
-            const item = mediaCache.find(m => m.id === id);
+        // --- Onglet Enfants : affichage, catalogue, recommandations, historique ---
+
+        const KIDS_VIEWS = [
+            { id: 'catalogue', label: 'Catalogue', icon: 'fa-film' },
+            { id: 'reco', label: 'Pour toi', icon: 'fa-wand-magic-sparkles' },
+            { id: 'seen', label: 'Déjà vus', icon: 'fa-eye' },
+            { id: 'liked', label: 'Aimés', icon: 'fa-heart' }
+        ];
+        const KIDS_AGE_COLORS = { 3: 'bg-emerald-600', 6: 'bg-sky-600', 9: 'bg-indigo-600', 12: 'bg-purple-600' };
+
+        function kidsChipClass(active) {
+            return `px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? 'bg-accent text-white shadow-md' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}`;
+        }
+
+        function ageBadge(item, sizeClasses) {
+            if (!item.ageBand) return '';
+            const label = `${item.ageBand}+${item.ageEstimated ? '*' : ''}`;
+            const title = item.ageEstimated ? 'Âge estimé (pas de classification officielle)' : `Classification ${item.ageSource || ''}`;
+            return `<span class="${KIDS_AGE_COLORS[item.ageBand] || 'bg-gray-600'} text-white font-bold ${sizeClasses}" title="${escapeHtml(title)}">${label}</span>`;
+        }
+
+        function kidsEmptyMessage() {
+            switch (kidsState.view) {
+                case 'reco': return 'Marque des films avec « J\'aime » pour recevoir des recommandations.';
+                case 'seen': return 'Aucun film marqué comme « Déjà vu » pour l\'instant.';
+                case 'liked': return 'Aucun film aimé pour l\'instant.';
+                default: return 'Aucun film trouvé.';
+            }
+        }
+
+        function initKids() {
+            renderKidsAgeChips();
+            renderKidsViewChips();
+            renderKidsSeedChips();
+        }
+
+        function renderKidsAgeChips() {
+            document.getElementById('kidsAgeContainer').innerHTML = SolarfinKids.AGE_BANDS.map(age => {
+                const active = kidsState.maxAge === age;
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsMaxAge(${age})" class="${kidsChipClass(active)}"><span class="w-2 h-2 rounded-full ${KIDS_AGE_COLORS[age]}"></span> ${age}+</button>`;
+            }).join('');
+        }
+
+        function renderKidsViewChips() {
+            const likedCount = SolarfinKids.listByStatus(kidsState, 'liked').length;
+            const seenCount = SolarfinKids.listByStatus(kidsState, 'seen').length;
+            const counts = { seen: seenCount, liked: likedCount };
+            document.getElementById('kidsViewContainer').innerHTML = KIDS_VIEWS.map(view => {
+                const active = kidsState.view === view.id;
+                const count = counts[view.id] !== undefined ? ` <span class="opacity-70">(${counts[view.id]})</span>` : '';
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsView('${view.id}')" class="${kidsChipClass(active)}"><i class="fa-solid ${view.icon} text-[10px]"></i> ${view.label}${count}</button>`;
+            }).join('');
+        }
+
+        // "Recommandations à partir de" : tous les favoris ou un seul film aimé
+        function renderKidsSeedChips() {
+            const container = document.getElementById('kidsSeedContainer');
+            const liked = SolarfinKids.listByStatus(kidsState, 'liked');
+            if (kidsSeedId !== 'all' && !liked.some(item => item.id === kidsSeedId)) kidsSeedId = 'all';
+            const visible = kidsState.view === 'reco' && liked.length > 0;
+            container.classList.toggle('hidden', !visible);
+            if (!visible) return;
+            const chips = [{ id: 'all', title: 'Tous mes favoris' }, ...liked.slice(0, 15)];
+            container.innerHTML = '<span class="text-[10px] text-gray-500 self-center whitespace-nowrap">À partir de :</span>' + chips.map(chip => {
+                const active = kidsSeedId === chip.id;
+                const arg = chip.id === 'all' ? "'all'" : Number(chip.id);
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsSeed(${arg})" class="${kidsChipClass(active)}">${chip.id === 'all' ? '<i class="fa-solid fa-heart text-[10px]"></i> ' : ''}${escapeHtml(chip.title)}</button>`;
+            }).join('');
+        }
+
+        function persistKidsState() {
+            SolarfinKids.saveState(localStorage, kidsState);
+        }
+
+        function setKidsMaxAge(age) {
+            kidsState.maxAge = age;
+            persistKidsState();
+            renderKidsAgeChips();
+            applyFilters();
+        }
+
+        function setKidsView(view) {
+            kidsState.view = view;
+            persistKidsState();
+            renderKidsViewChips();
+            renderKidsSeedChips();
+            if (view === 'reco' && kidsRecoDirty) refreshKidsRecommendations();
+            else applyFilters();
+        }
+
+        function setKidsSeed(id) {
+            kidsSeedId = id;
+            renderKidsSeedChips();
+            refreshKidsRecommendations();
+        }
+
+        function getKidsViewItems() {
+            switch (kidsState.view) {
+                case 'seen': return SolarfinKids.listByStatus(kidsState, 'seen');
+                case 'liked': return SolarfinKids.listByStatus(kidsState, 'liked');
+                // Un film marqué vu depuis la fiche disparaît tout de suite des recommandations
+                case 'reco': return kidsRecoCache.filter(item => !SolarfinKids.getEntry(kidsState, item.id));
+                default: return mediaCache;
+            }
+        }
+
+        // Retrouve un film affiché, quelle que soit la vue (catalogue, recommandations ou historique)
+        function findItem(id) {
+            const fromCatalogue = mediaCache.find(m => m.id === id);
+            if (fromCatalogue || !isKidsMode) return fromCatalogue;
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            return kidsRecoCache.find(m => m.id === id) || (entry && entry.item);
+        }
+
+        // Exécute fn sur chaque élément avec au plus `limit` requêtes simultanées (pour ménager l'API TMDB)
+        async function mapWithLimit(items, limit, fn) {
+            const results = new Array(items.length);
+            let next = 0;
+            const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+                while (next < items.length) {
+                    const index = next++;
+                    results[index] = await fn(items[index], index);
+                }
+            });
+            await Promise.all(workers);
+            return results;
+        }
+
+        // Une seule requête par film : certifications + mots-clés + plateformes (append_to_response)
+        async function fetchKidsMovieDetails(id) {
+            if (kidsDetailsCache.has(id)) return kidsDetailsCache.get(id);
+            const url = `https://api.themoviedb.org/3/movie/${Number(id)}?api_key=${config.tmdbKey}&language=fr-FR&append_to_response=release_dates,keywords,watch/providers`;
+            const res = await fetchWithRetry(url);
+            const data = await res.json();
+            const genreIds = (data.genres || []).map(g => g.id);
+            const age = SolarfinKids.classifyAge(data.release_dates && data.release_dates.results, genreIds);
+            const providers = (data['watch/providers'] && data['watch/providers'].results && data['watch/providers'].results.FR) || {};
+            const details = {
+                genre_ids: genreIds,
+                ageBand: age.band,
+                ageEstimated: age.estimated,
+                ageSource: age.source,
+                keywordIds: ((data.keywords && data.keywords.keywords) || []).map(k => k.id),
+                platformKeys: mapWatchProvidersToPlatformKeys(providers),
+                voteAverage: Number(data.vote_average) || 0,
+                voteCount: Number(data.vote_count) || 0
+            };
+            kidsDetailsCache.set(id, details);
+            return details;
+        }
+
+        // Ajoute la tranche d'âge à chaque film et retire ceux qui ne sont pas adaptés (ou inclassables)
+        async function classifyKidsItems(items) {
+            const classified = await mapWithLimit(items, 8, async item => {
+                try {
+                    const details = await fetchKidsMovieDetails(item.id);
+                    return { ...item, ...details, primaryPlatformKey: details.platformKeys[0] || null };
+                } catch (e) {
+                    return null;
+                }
+            });
+            return classified.filter(item => item && item.ageBand !== null);
+        }
+
+        async function loadKidsCatalogue() {
+            const grid = document.getElementById('mediaGrid');
+            try {
+                const genres = encodeURIComponent(`${SolarfinKids.GENRE_FAMILY}|${SolarfinKids.GENRE_ANIMATION}`);
+                const excluded = SolarfinKids.NOT_FOR_KIDS_GENRES.join(',');
+                const pages = await Promise.all([1, 2].map(page =>
+                    fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${config.tmdbKey}&language=fr-FR&region=FR&include_adult=false&sort_by=popularity.desc&with_genres=${genres}&without_genres=${excluded}&vote_count.gte=50&page=${page}`)
+                        .then(res => res.json())
+                ));
+                const items = pages.flatMap(data => data.results || []).map(toMediaItem);
+                const unique = [...new Map(items.map(item => [item.id, item])).values()];
+                const classified = await classifyKidsItems(unique);
+                if (!isKidsMode) return; // l'utilisateur a changé d'onglet pendant le chargement
+                mediaCache = classified;
+                kidsRecoDirty = true;
+                if (kidsState.view === 'reco') refreshKidsRecommendations();
+                else applyFilters();
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-red-400">Erreur lors du chargement du catalogue enfants. Vérifiez votre clé API TMDB dans les paramètres.</div>`;
+            }
+        }
+
+        // Candidats = catalogue enfants + recommandations TMDB des films aimés, puis classement par kids.js
+        async function computeKidsRecommendations() {
+            const allLiked = SolarfinKids.listByStatus(kidsState, 'liked');
+            const liked = kidsSeedId === 'all' ? allLiked : allLiked.filter(item => item.id === kidsSeedId);
+            if (!liked.length) return [];
+            const seenIds = new Set(SolarfinKids.listByStatus(kidsState, 'seen').map(item => item.id));
+            const candidates = new Map(mediaCache.map(item => [item.id, item]));
+            const recoSources = new Map();
+
+            const seeds = liked.slice(0, 5); // les 5 films aimés les plus récents
+            const lists = await mapWithLimit(seeds, 5, async seed => {
+                try {
+                    const res = await fetchWithRetry(`https://api.themoviedb.org/3/movie/${Number(seed.id)}/recommendations?api_key=${config.tmdbKey}&language=fr-FR`);
+                    return { seed, results: (await res.json()).results || [] };
+                } catch (e) {
+                    return { seed, results: [] };
+                }
+            });
+            for (const { seed, results } of lists) {
+                for (const result of results) {
+                    if (result.adult) continue;
+                    if (!candidates.has(result.id)) candidates.set(result.id, toMediaItem(result));
+                    recoSources.set(result.id, [...(recoSources.get(result.id) || []), seed.id]);
+                }
+            }
+
+            // Pré-classement sans mots-clés ni âge, pour ne demander les détails TMDB que des 30 meilleurs
+            const profile = SolarfinKids.buildTasteProfile(liked);
+            const shortlist = [...candidates.values()]
+                .filter(c => !seenIds.has(c.id))
+                .map(c => ({ c, score: SolarfinKids.scoreCandidate(c, profile, recoSources.get(c.id), liked.length).score }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 30)
+                .map(entry => entry.c);
+            const alreadyClassified = shortlist.filter(c => c.ageBand !== undefined);
+            const newlyClassified = await classifyKidsItems(shortlist.filter(c => c.ageBand === undefined));
+
+            return SolarfinKids.recommend({
+                candidates: [...alreadyClassified, ...newlyClassified],
+                likedItems: liked,
+                seenIds,
+                recoSources,
+                maxAge: SolarfinKids.MAX_KIDS_AGE // le filtre d'âge choisi est appliqué à l'affichage
+            });
+        }
+
+        async function refreshKidsRecommendations() {
+            if (kidsRecoLoading) return;
+            kidsRecoLoading = true;
+            document.getElementById('mediaGrid').innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
+            try {
+                kidsRecoCache = await computeKidsRecommendations();
+            } catch (err) {
+                console.error(err);
+                kidsRecoCache = [];
+            } finally {
+                kidsRecoDirty = false;
+                kidsRecoLoading = false;
+            }
+            applyFilters();
+        }
+
+        function toggleKidsSeen(id) {
+            const item = findItem(id);
             if (!item) return;
-            lastRequestedItem = item;
-            document.getElementById('modalTitle').innerText = item.title;
-            document.getElementById('modalYear').innerText = item.year;
-            document.getElementById('modalRating').innerText = `★ ${item.rating}`;
-            document.getElementById('modalOverview').innerText = item.overview;
-            const backdrop = document.getElementById('modalBackdrop');
-            backdrop.style.backgroundImage = `url(${item.backdrop || item.poster})`;
-            backdrop.style.backgroundSize = 'cover';
-            backdrop.style.backgroundPosition = 'center';
-            const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix']).map(key => {
-                const data = platformData[key] || platformData.netflix;
-                return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
-            }).join('');
-            document.getElementById('modalPlatforms').innerHTML = platformBadges;
-            const genresObj = genreMap[currentMediaType];
-            document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
-                const label = genresObj[gId];
-                return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
-            }).join('');
-            document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
-            document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
-            document.getElementById('detailModal').classList.remove('hidden');
-        } */
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            SolarfinKids.setSeen(kidsState, item, !(entry && entry.seen));
+            onKidsHistoryChanged(item);
+        }
+
+        function toggleKidsLiked(id) {
+            const item = findItem(id);
+            if (!item) return;
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            SolarfinKids.setLiked(kidsState, item, !(entry && entry.liked));
+            onKidsHistoryChanged(item);
+        }
+
+        function onKidsHistoryChanged(item) {
+            persistKidsState();
+            // Les recommandations seront recalculées au prochain passage sur "Pour toi"
+            // (pas à chaque clic, pour éviter de recharger la grille pendant qu'on note des films)
+            kidsRecoDirty = true;
+            updateKidsModal(item);
+            renderKidsViewChips();
+            renderKidsSeedChips();
+            applyFilters();
+        }
+
+        function updateKidsModal(item) {
+            const ageEl = document.getElementById('modalAge');
+            const actions = document.getElementById('modalKidsActions');
+            ageEl.classList.toggle('hidden', !isKidsMode || !item.ageBand);
+            actions.classList.toggle('hidden', !isKidsMode);
+            if (!isKidsMode) return;
+
+            ageEl.className = `${item.ageBand ? '' : 'hidden '}px-2 py-0.5 rounded-lg text-white text-xs font-bold ${KIDS_AGE_COLORS[item.ageBand] || 'bg-gray-600'}`;
+            ageEl.innerText = item.ageBand ? `${item.ageBand}+` : '';
+            document.getElementById('modalAgeSource').innerText = item.ageEstimated
+                ? 'Âge estimé d\'après les genres (pas de classification officielle).'
+                : `Classification officielle : ${item.ageSource || 'inconnue'}`;
+
+            const entry = SolarfinKids.getEntry(kidsState, item.id);
+            const seen = Boolean(entry && entry.seen);
+            const liked = Boolean(entry && entry.liked);
+            const seenBtn = document.getElementById('modalSeenBtn');
+            const likedBtn = document.getElementById('modalLikedBtn');
+            const base = 'py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border';
+            seenBtn.className = `${base} ${seen ? 'bg-sky-600 border-sky-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:text-white'}`;
+            seenBtn.innerHTML = `<i class="fa-solid ${seen ? 'fa-eye' : 'fa-eye-slash'}"></i> ${seen ? 'Déjà vu' : 'Pas encore vu'}`;
+            seenBtn.setAttribute('aria-pressed', String(seen));
+            seenBtn.setAttribute('onclick', `toggleKidsSeen(${Number(item.id)})`);
+            likedBtn.className = `${base} ${liked ? 'bg-pink-600 border-pink-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:text-white'}`;
+            likedBtn.innerHTML = `<i class="${liked ? 'fa-solid' : 'fa-regular'} fa-heart"></i> ${liked ? 'Aimé' : 'J\'aime'}`;
+            likedBtn.setAttribute('aria-pressed', String(liked));
+            likedBtn.setAttribute('onclick', `toggleKidsLiked(${Number(item.id)})`);
+        }
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.add('hidden');
@@ -695,7 +1000,7 @@
                     trailer = dataEn.results && dataEn.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
                 }
                 if (trailer) {
-                    container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1" class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                    container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(trailer.key)}?autoplay=1" title="Bande-annonce" class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 } else {
                     container.innerHTML = `<div class="py-12 text-center text-xs text-gray-400">Aucune bande-annonce disponible pour ce titre.</div>`;
                 }
@@ -709,280 +1014,155 @@
             document.getElementById('trailerContainer').innerHTML = '';
         }
 
-        // async function sendRequest(id) {
-        //     const item = mediaCache.find(m => m.id === id);
-        //     if (!config.serverUrl || !config.serverKey) {
-        //         alert('Veuillez configurer l\'URL et la clé API Overseerr / Moonfin dans les paramètres.');
-        //         openSettings();
-        //         return;
-        //     }
-        //     try {
-        //         const res = await fetchWithRetry(`${config.serverUrl}/api/v1/request`, 3, 800);
-        //         const response = await res.text();
-        //         if (!res.ok) {
-        //             alert('Erreur lors de l\'envoi de la demande au serveur.');
-        //             return;
-        //         }
-        //         let json;
-        //         try {
-        //             json = JSON.parse(response);
-        //         } catch (e) {
-        //             json = { ok: true };
-        //         }
-        //         if (json && json.error) {
-        //             alert(`Erreur serveur: ${json.error}`);
-        //             return;
-        //         }
-        //         alert(`Demande pour "${item.title}" envoyée avec succès à Overseerr / Moonfin !`);
-        //         closeDetailModal();
-        //     } catch (err) {
-        //         alert('Impossible de contacter le serveur Overseerr / Moonfin. Vérifiez l\'URL.');
-        //     }
-        // }
+        // --- Intégration Seer / Overseerr / Jellyseerr : profils, fiche détail et envoi ---
 
-  
-/*         async function sendRequest(id) {
-            const item = mediaCache.find(m => m.id === id);
+        // Profils Radarr/Sonarr du serveur par défaut, mis en cache par type de média
+        let seerProfilesCache = { movie: null, tv: null };
+
+        // On passe par /api/v1/service/* (comme l'interface d'Overseerr) et non /api/v1/settings/* :
+        // les routes "settings" renvoient aussi les clés API de Radarr/Sonarr au navigateur.
+        async function fetchSeerProfiles(type) {
+            if (!config.serverUrl || !config.serverKey) return null;
+            const service = type === 'movie' ? 'radarr' : 'sonarr';
+            const headers = { 'X-Api-Key': config.serverKey };
+            try {
+                const listRes = await fetch(`${config.serverUrl}/api/v1/service/${service}`, { headers });
+                if (!listRes.ok) return null;
+                const servers = await listRes.json();
+                if (!Array.isArray(servers) || !servers.length) return null;
+                const server = servers.find(s => s.isDefault && !s.is4k) || servers.find(s => !s.is4k) || servers[0];
+                const detailRes = await fetch(`${config.serverUrl}/api/v1/service/${service}/${encodeURIComponent(server.id)}`, { headers });
+                if (!detailRes.ok) return null;
+                const details = await detailRes.json();
+                return {
+                    serverId: server.id,
+                    activeProfileId: server.activeProfileId,
+                    activeLanguageProfileId: server.activeLanguageProfileId,
+                    qualityProfiles: details.profiles || [],
+                    languageProfiles: details.languageProfiles || []
+                };
+            } catch (e) {
+                console.warn('Impossible de charger les profils Seer:', e);
+                return null;
+            }
+        }
+
+        function buildProfileOptions(profiles, activeId) {
+            if (!profiles.length) return '<option value="">Par défaut (Seer)</option>';
+            return profiles.map(p =>
+                `<option value="${Number(p.id)}"${p.id === activeId ? ' selected' : ''}>${escapeHtml(p.name)}</option>`
+            ).join('');
+        }
+
+        async function populateSeerProfileSelects() {
+            const type = currentMediaType;
+            const qualitySelect = document.getElementById('requestQualityProfile');
+            const languageSelect = document.getElementById('requestLanguageProfile');
+
+            qualitySelect.innerHTML = '<option value="">Chargement...</option>';
+            languageSelect.innerHTML = '<option value="">Chargement...</option>';
+
+            if (!seerProfilesCache[type]) {
+                seerProfilesCache[type] = await fetchSeerProfiles(type);
+            }
+            const profiles = seerProfilesCache[type];
+
+            qualitySelect.innerHTML = buildProfileOptions(profiles ? profiles.qualityProfiles : [], profiles && profiles.activeProfileId);
+            languageSelect.innerHTML = buildProfileOptions(profiles ? profiles.languageProfiles : [], profiles && profiles.activeLanguageProfileId);
+        }
+
+        async function openDetailModal(id) {
+            const item = findItem(id);
+            if (!item) return;
+            lastRequestedItem = item;
+
+            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('modalYear').innerText = item.year;
+            document.getElementById('modalRating').innerText = `★ ${item.rating}`;
+            document.getElementById('modalOverview').innerText = item.overview;
+
+            const backdrop = document.getElementById('modalBackdrop');
+            backdrop.style.backgroundImage = `url(${JSON.stringify(item.backdrop || item.poster)})`;
+            backdrop.style.backgroundSize = 'cover';
+            backdrop.style.backgroundPosition = 'center';
+
+            const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix']).map(key => {
+                const data = platformData[key] || platformData.netflix;
+                return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
+            }).join('');
+            document.getElementById('modalPlatforms').innerHTML = platformBadges;
+
+            const genresObj = genreMap[currentMediaType];
+            document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
+                const label = genresObj[gId];
+                return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
+            }).join('');
+
+            document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${Number(item.id)})`);
+            document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${Number(item.id)})`);
+
+            updateKidsModal(item);
+            document.getElementById('detailModal').classList.remove('hidden');
+
+            // Charger dynamiquement les profils configurés dans Seer/Radarr/Sonarr
+            populateSeerProfileSelects();
+        }
+
+        async function sendRequest(id) {
+            const item = findItem(id);
             if (!config.serverUrl || !config.serverKey) {
                 alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
                 openSettings();
                 return;
             }
+
+            const profileId = document.getElementById('requestQualityProfile').value;
+            const languageProfileId = document.getElementById('requestLanguageProfile').value;
+            const profiles = seerProfilesCache[currentMediaType];
+
             try {
+                const payload = {
+                    mediaType: currentMediaType,
+                    mediaId: Number(id)
+                };
+
+                // Seer attend "profileId" (et non "qualityProfileId", qui était ignoré) + l'id du serveur Radarr/Sonarr
+                if (profileId && profiles) {
+                    payload.serverId = profiles.serverId;
+                    payload.profileId = Number(profileId);
+                }
+                if (languageProfileId && currentMediaType === 'tv') {
+                    payload.languageProfileId = Number(languageProfileId);
+                }
+
+                // Si c'est une série, demander toutes les saisons
+                if (currentMediaType === 'tv') {
+                    payload.seasons = 'all';
+                }
+
                 const res = await fetch(`${config.serverUrl}/api/v1/request`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Api-Key': config.serverKey
                     },
-                    body: JSON.stringify({
-                        mediaType: currentMediaType,
-                        mediaId: Number(id)
-                    })
+                    body: JSON.stringify(payload)
                 });
-                
+
                 if (!res.ok) {
                     const errText = await res.text();
                     alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
                     return;
                 }
-        
-                alert(`Demande pour "${item.title}" envoyée avec succès à Seer !`);
+
+                alert(`Demande pour "${item ? item.title : 'ce titre'}" envoyée avec succès à Seer !`);
                 closeDetailModal();
             } catch (err) {
                 console.error(err);
-                alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL (ex: http://192.168.1.X:5055) et le réseau.');
+                alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL et votre réseau.');
             }
         }
-    
- */
 
-    /* async function sendRequest(id) {
-        const item = mediaCache.find(m => m.id === id);
-        if (!config.serverUrl || !config.serverKey) {
-            alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
-            openSettings();
-            return;
-        }
-
-        const selectedLang = document.getElementById('requestLanguage').value;
-        const selectedQuality = document.getElementById('requestQuality').value;
-
-        try {
-            const payload = {
-                mediaType: currentMediaType,
-                mediaId: Number(id),
-                // Définition de la langue audio / subs souhaitée
-                languageProfileId: selectedLang === 'fr' ? 1 : 0, 
-                // Transfert des métadonnées personnalisées
-                is4k: selectedQuality === '2160p'
-            };
-
-            // Si c'est une série, on demande par défaut la première saison ou toutes les saisons
-            if (currentMediaType === 'tv') {
-                payload.seasons = 'all';
-            }
-
-            const res = await fetch(`${config.serverUrl}/api/v1/request`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': config.serverKey
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                const errText = await res.text();
-                alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
-                return;
-            }
-
-            alert(`Demande pour "${item.title}" (${selectedLang.toUpperCase()} - ${selectedQuality}) envoyée avec succès à Seer !`);
-            closeDetailModal();
-        } catch (err) {
-            console.error(err);
-            alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL et votre réseau.');
-        }
-    }
-    */
-    //<!-- DEBUT MODIFICATION : Fonctions Seer dynamique (Profils, Ouverture & Envoi) -->
-
-    // Cache local des profils Seer pour éviter des requêtes inutiles
-    let seerProfilesCache = {
-        movie: { qualityProfiles: [], languageProfiles: [] },
-        tv: { qualityProfiles: [], languageProfiles: [] }
-    };
-
-    // Fonction pour récupérer les profils Radarr/Sonarr depuis Seer
-    async function fetchSeerProfiles(type) {
-        if (!config.serverUrl || !config.serverKey) return;
-        const endpoint = type === 'movie' ? '/api/v1/settings/radarr' : '/api/v1/settings/sonarr';
-        
-        try {
-            const res = await fetch(`${config.serverUrl}${endpoint}`, {
-                headers: { 'X-Api-Key': config.serverKey }
-            });
-            if (!res.ok) return;
-            const data = await res.json();
-            
-            // Seer renvoie la liste des serveurs configurés
-            const server = Array.isArray(data) && data.length > 0 ? data[0] : null;
-            if (server) {
-                seerProfilesCache[type].qualityProfiles = server.profiles || [];
-                // Si des profils de langue spécifiques existent dans la réponse
-                seerProfilesCache[type].languageProfiles = server.languageProfiles || [];
-            }
-        } catch (e) {
-            console.warn('Impossible de charger les profils Seer:', e);
-        }
-    }
-
-    async function populateSeerProfileSelects() {
-        const qualitySelect = document.getElementById('requestQualityProfile');
-        const languageSelect = document.getElementById('requestLanguageProfile');
-        
-        qualitySelect.innerHTML = '<option value="">Chargement...</option>';
-        languageSelect.innerHTML = '<option value="">Chargement...</option>';
-
-        // Charger les profils si pas encore en cache
-        if (!seerProfilesCache[currentMediaType].qualityProfiles.length) {
-            await fetchSeerProfiles(currentMediaType);
-        }
-
-        const { qualityProfiles, languageProfiles } = seerProfilesCache[currentMediaType];
-
-        // Remplissage du select Qualité
-        if (qualityProfiles.length > 0) {
-            qualitySelect.innerHTML = qualityProfiles.map(p => 
-                `<option value="${p.id}">${p.name}</option>`
-            ).join('');
-        } else {
-            qualitySelect.innerHTML = '<option value="">Par défaut (Seer)</option>';
-        }
-
-        // Remplissage du select Langue
-        if (languageProfiles.length > 0) {
-            languageSelect.innerHTML = languageProfiles.map(p => 
-                `<option value="${p.id}">${p.name}</option>`
-            ).join('');
-        } else {
-            languageSelect.innerHTML = '<option value="">Par défaut (Seer)</option>';
-        }
-    }
-
-    async function openDetailModal(id) {
-        const item = mediaCache.find(m => m.id === id);
-        if (!item) return;
-        lastRequestedItem = item;
-        
-        document.getElementById('modalTitle').innerText = item.title;
-        document.getElementById('modalYear').innerText = item.year;
-        document.getElementById('modalRating').innerText = `★ ${item.rating}`;
-        document.getElementById('modalOverview').innerText = item.overview;
-        
-        const backdrop = document.getElementById('modalBackdrop');
-        backdrop.style.backgroundImage = `url(${item.backdrop || item.poster})`;
-        backdrop.style.backgroundSize = 'cover';
-        backdrop.style.backgroundPosition = 'center';
-        
-        const platformBadges = (item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix']).map(key => {
-            const data = platformData[key] || platformData.netflix;
-            return `<span class="px-2 py-0.5 rounded-lg ${data.color} text-white text-[10px] font-bold">${data.name}</span>`;
-        }).join('');
-        document.getElementById('modalPlatforms').innerHTML = platformBadges;
-        
-        const genresObj = genreMap[currentMediaType];
-        document.getElementById('modalGenres').innerHTML = (item.genre_ids || []).map(gId => {
-            const label = genresObj[gId];
-            return label ? `<span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-300 text-[10px] font-medium border border-gray-700">${label}</span>` : '';
-        }).join('');
-
-        document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${item.id})`);
-        document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${item.id})`);
-        
-        document.getElementById('detailModal').classList.remove('hidden');
-
-        // Charger dynamiquement les profils configurés dans Seer/Radarr/Sonarr
-        populateSeerProfileSelects();
-    }
-
-    async function sendRequest(id) {
-        const item = mediaCache.find(m => m.id === id);
-        if (!config.serverUrl || !config.serverKey) {
-            alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
-            openSettings();
-            return;
-        }
-
-        const qualityProfileId = document.getElementById('requestQualityProfile').value;
-        const languageProfileId = document.getElementById('requestLanguageProfile').value;
-
-        try {
-            const payload = {
-                mediaType: currentMediaType,
-                mediaId: Number(id)
-            };
-
-            // Ajout des identifiants s'ils ont été récupérés
-            if (qualityProfileId) {
-                payload.qualityProfileId = Number(qualityProfileId);
-            }
-            if (languageProfileId) {
-                payload.languageProfileId = Number(languageProfileId);
-            }
-
-            // Si c'est une série, demander toutes les saisons
-            if (currentMediaType === 'tv') {
-                payload.seasons = 'all';
-            }
-
-            const res = await fetch(`${config.serverUrl}/api/v1/request`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': config.serverKey
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                const errText = await res.text();
-                alert(`Erreur serveur (${res.status}): ${errText || 'Impossible d\'envoyer la demande'}`);
-                return;
-            }
-
-            alert(`Demande pour "${item.title}" envoyée avec succès à Seer !`);
-            closeDetailModal();
-        } catch (err) {
-            console.error(err);
-            alert('Impossible de contacter le serveur Seer. Vérifiez l\'URL et votre réseau.');
-        }
-    }
-//<!-- FIN MODIFICATION : Fonctions Seer dynamique -->
-
-
-        
         function openSettings() {
             document.getElementById('settingTmdbKey').value = config.tmdbKey;
             document.getElementById('settingServerUrl').value = config.serverUrl;
@@ -1004,6 +1184,7 @@
             saveEncryptedValue('streamhub_tmdb', config.tmdbKey);
             saveEncryptedValue('streamhub_url', config.serverUrl);
             saveEncryptedValue('streamhub_key', config.serverKey);
+            seerProfilesCache = { movie: null, tv: null };
             closeSettings();
             loadCatalogue();
             alert('Paramètres enregistrés avec succès !');
