@@ -49,8 +49,9 @@
             </div>
 
             <div class="bg-gray-900/90 p-1 rounded-2xl border border-gray-800 flex items-center shadow-inner">
-                <button id="typeMovie" type="button" aria-label="Afficher les films" aria-pressed="true" onclick="switchMediaType('movie')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
-                <button id="typeTv" type="button" aria-label="Afficher les séries" aria-pressed="false" onclick="switchMediaType('tv')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+                <button id="typeMovie" type="button" aria-label="Afficher les films" aria-pressed="true" onclick="switchMediaType('movie')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md">Films</button>
+                <button id="typeTv" type="button" aria-label="Afficher les séries" aria-pressed="false" onclick="switchMediaType('tv')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Séries</button>
+                <button id="typeKids" type="button" aria-label="Afficher l'espace enfants" aria-pressed="false" onclick="switchMediaType('kids')" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white">Enfants</button>
             </div>
 
             <button type="button" aria-label="Ouvrir les paramètres" onclick="openSettings()" class="w-9 h-9 rounded-xl bg-gray-800/80 border border-gray-700/60 flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 shadow-md spring-active">
@@ -67,7 +68,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-4 space-y-6">
-        <section class="space-y-2">
+        <section id="sourcesSection" class="space-y-2">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-compass text-accent"></i> Sources de recommandations
@@ -75,6 +76,26 @@
                 <span id="sourcesCount" class="text-[10px] text-gray-500 font-medium">1 sélectionnée</span>
             </div>
             <div id="sourcesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Sources de recommandations"></div>
+        </section>
+
+        <!-- Onglet Enfants : tranche d'âge, vues (catalogue / recommandations / historique) -->
+        <section id="kidsSection" class="space-y-4 hidden">
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-child-reaching text-emerald-400"></i> Âge de l'enfant
+                    </h2>
+                    <span class="text-[10px] text-gray-500 font-medium">Films adaptés jusqu'à cet âge</span>
+                </div>
+                <div id="kidsAgeContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="group" aria-label="Tranche d'âge"></div>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-heart text-pink-400"></i> Mes films
+                </h2>
+                <div id="kidsViewContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="group" aria-label="Affichage"></div>
+                <div id="kidsSeedContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 hidden" role="group" aria-label="Recommandations à partir de"></div>
+            </div>
         </section>
 
         <section class="space-y-2">
@@ -134,12 +155,22 @@
                     <div class="flex items-center gap-2 mb-1">
                         <span id="modalRating" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">★ 0.0</span>
                         <span id="modalYear" class="text-xs text-gray-400 font-medium">2026</span>
+                        <span id="modalAge" class="hidden px-2 py-0.5 rounded-lg bg-emerald-600 text-white text-xs font-bold"></span>
                         <div id="modalPlatforms" class="flex gap-1 ml-auto flex-wrap justify-end"></div>
                     </div>
                     <h3 id="modalTitle" class="text-xl font-bold text-white tracking-tight">Titre du film</h3>
                     <div id="modalGenres" class="flex flex-wrap gap-1.5 mt-2"></div>
                 </div>
                 <p id="modalOverview" class="text-xs text-gray-300 leading-relaxed"></p>
+
+                <!-- Onglet Enfants : statut de visionnage et "J'aime" -->
+                <div id="modalKidsActions" class="hidden space-y-2">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="modalSeenBtn" type="button" aria-pressed="false" onclick="" class="py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border"></button>
+                        <button id="modalLikedBtn" type="button" aria-pressed="false" onclick="" class="py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border"></button>
+                    </div>
+                    <p id="modalAgeSource" class="text-[10px] text-gray-500"></p>
+                </div>
 
                 <!-- MENUS DE PROFILS CHARGÉS DYNAMIQUEMENT DEPUIS SEER -->
                 <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-800/80">
@@ -206,6 +237,7 @@
         </div>
     </div>
 
+    <script src="./kids.js"></script>
     <script>
         // Attention : ce XOR est un simple brouillage, pas un chiffrement. La "clé" est publique
         // (elle est dans ce fichier), donc n'importe quel script de la page peut relire les valeurs.
@@ -280,6 +312,15 @@
         let mediaCache = [];
         let lastRequestedItem = null;
         let searchTimeout = null;
+
+        // Onglet Enfants (logique métier dans kids.js)
+        let isKidsMode = false;
+        let kidsState = SolarfinKids.loadState(localStorage);
+        let kidsRecoCache = [];
+        let kidsRecoDirty = true;
+        let kidsRecoLoading = false;
+        let kidsSeedId = 'all';
+        const kidsDetailsCache = new Map();
 
         let config = {
             tmdbKey: loadEncryptedValue('streamhub_tmdb') || '',
@@ -421,11 +462,19 @@
         });
 
         function switchMediaType(type) {
-            currentMediaType = type;
-            document.getElementById('typeMovie').className = type === 'movie' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
-            document.getElementById('typeTv').className = type === 'tv' ? 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-accent text-white shadow-md' : 'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white';
-            document.getElementById('typeMovie').setAttribute('aria-pressed', type === 'movie' ? 'true' : 'false');
-            document.getElementById('typeTv').setAttribute('aria-pressed', type === 'tv' ? 'true' : 'false');
+            // L'onglet Enfants ne contient que des films : les appels TMDB/Seer restent en type "movie"
+            isKidsMode = type === 'kids';
+            currentMediaType = isKidsMode ? 'movie' : type;
+            [['typeMovie', 'movie'], ['typeTv', 'tv'], ['typeKids', 'kids']].forEach(([buttonId, buttonType]) => {
+                const button = document.getElementById(buttonId);
+                const active = buttonType === type;
+                button.className = `px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 ${active ? 'bg-accent text-white shadow-md' : 'text-gray-400 hover:text-white'}`;
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            document.getElementById('sourcesSection').classList.toggle('hidden', isKidsMode);
+            document.getElementById('kidsSection').classList.toggle('hidden', !isKidsMode);
+            mediaCache = [];
+            if (isKidsMode) initKids();
             selectedSources.clear();
             selectedSources.add('trending');
             selectedGenres.clear();
@@ -495,7 +544,9 @@
 
         function initGenres() {
             const container = document.getElementById('genresContainer');
-            const genres = genreMap[currentMediaType];
+            // Dans l'onglet Enfants, on masque les genres qui n'y ont pas leur place (horreur, thriller...)
+            const genres = Object.fromEntries(Object.entries(genreMap[currentMediaType])
+                .filter(([id]) => !isKidsMode || !SolarfinKids.NOT_FOR_KIDS_GENRES.includes(Number(id))));
             let html = `<button type="button" aria-label="Tous genres" aria-pressed="${selectedGenres.has('all') ? 'true' : 'false'}" onclick="setGenre('all')" class="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedGenres.has('all') ? 'bg-accent text-white' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}">Tous</button>`;
             html += Object.entries(genres).map(([id, name]) => {
                 const active = selectedGenres.has(id);
@@ -522,6 +573,25 @@
             applyFilters();
         }
 
+        // Convertit un résultat TMDB (trending, discover, recommendations) en élément du catalogue
+        function toMediaItem(item) {
+            return {
+                id: item.id,
+                title: item.title || item.name,
+                overview: item.overview || 'Aucun synopsis disponible.',
+                poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : POSTER_PLACEHOLDER,
+                backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
+                rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 'N/A',
+                voteAverage: Number(item.vote_average) || 0,
+                voteCount: Number(item.vote_count) || 0,
+                year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
+                genre_ids: item.genre_ids || [],
+                sourceFeed: Array.from(selectedSources)[0] || 'trending',
+                platformKeys: [],
+                primaryPlatformKey: 'netflix'
+            };
+        }
+
         async function loadCatalogue() {
             const grid = document.getElementById('mediaGrid');
             grid.innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
@@ -529,25 +599,14 @@
                 grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-yellow-400">Entrez votre clé TMDB dans les paramètres pour lancer le catalogue.</div>`;
                 return;
             }
+            if (isKidsMode) return loadKidsCatalogue();
             try {
                 let items = [];
                 const url = `https://api.themoviedb.org/3/trending/${currentMediaType}/week?api_key=${config.tmdbKey}&language=fr-FR`;
                 const res = await fetchWithRetry(url);
                 const data = await res.json();
                 if (data.results) {
-                    items = data.results.map(item => ({
-                        id: item.id,
-                        title: item.title || item.name,
-                        overview: item.overview || 'Aucun synopsis disponible.',
-                        poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : POSTER_PLACEHOLDER,
-                        backdrop: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : '',
-                        rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 'N/A',
-                        year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
-                        genre_ids: item.genre_ids || [],
-                        sourceFeed: Array.from(selectedSources)[0] || 'trending',
-                        platformKeys: [],
-                        primaryPlatformKey: 'netflix'
-                    }));
+                    items = data.results.map(toMediaItem);
                 }
                 mediaCache = await enrichItemsWithProviders(items);
                 applyFilters();
@@ -564,34 +623,361 @@
         }
 
         function applyFilters() {
-            let filtered = mediaCache.filter(item => {
+            if (isKidsMode && kidsRecoLoading && kidsState.view === 'reco') return; // la grille affiche le chargement
+            const source = isKidsMode ? getKidsViewItems() : mediaCache;
+            const allPlatformsSelected = selectedPlatforms.size === Object.keys(platformData).length;
+            let filtered = source.filter(item => {
                 if (searchQuery && !item.title.toLowerCase().includes(searchQuery)) return false;
-                const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
-                const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
-                if (!matchesPlatform) return false;
+                if (isKidsMode) {
+                    if (item.ageBand === null || item.ageBand === undefined || item.ageBand > kidsState.maxAge) return false;
+                    // Pas de plateforme inventée ici : un film sans plateforme connue n'est masqué que si le filtre est actif
+                    if (!allPlatformsSelected && !(item.platformKeys || []).some(key => selectedPlatforms.has(key))) return false;
+                } else {
+                    const itemPlatformKeys = item.platformKeys && item.platformKeys.length ? item.platformKeys : [item.primaryPlatformKey || 'netflix'];
+                    const matchesPlatform = Array.from(selectedPlatforms).some(key => itemPlatformKeys.includes(key));
+                    if (!matchesPlatform) return false;
+                }
                 if (!selectedGenres.has('all')) {
                     const matchesGenre = item.genre_ids.some(gId => selectedGenres.has(String(gId)));
                     if (!matchesGenre) return false;
                 }
                 return true;
             });
-            renderGrid(filtered);
+            renderGrid(filtered, isKidsMode && !source.length ? kidsEmptyMessage() : undefined);
         }
 
-        function renderGrid(items) {
+        function renderGrid(items, emptyMessage = 'Aucun résultat ne correspond à vos critères.') {
             const grid = document.getElementById('mediaGrid');
             document.getElementById('resultsCount').innerText = `${items.length} résultat${items.length > 1 ? 's' : ''}`;
             if (items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">Aucun résultat ne correspond à vos critères.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-gray-500">${emptyMessage}</div>`;
                 return;
             }
+            const showReason = isKidsMode && kidsState.view === 'reco';
             grid.innerHTML = items.map(item => {
-                const primaryKey = item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix';
-                const plat = platformData[primaryKey] || platformData.netflix;
+                // Onglet Enfants : seulement la vraie plateforme (ou aucun badge) ; ailleurs, comportement d'origine
+                const primaryKey = isKidsMode ? (item.platformKeys || [])[0] : (item.primaryPlatformKey || item.platformKeys?.[0] || 'netflix');
+                const plat = isKidsMode ? platformData[primaryKey] : (platformData[primaryKey] || platformData.netflix);
+                const platformBadge = plat ? `<div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div>` : '';
                 const id = Number(item.id);
                 const title = escapeHtml(item.title);
-                return `<div onclick="openDetailModal(${id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailModal(${id});}" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${title}"><div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden"><img src="${escapeHtml(item.poster)}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"><div class="absolute top-2 left-2 px-2 py-0.5 rounded-lg ${plat.color} text-white text-[10px] font-bold shadow-md">${plat.name}</div><div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1"><i class="fa-solid fa-star text-[9px]"></i> ${escapeHtml(item.rating)}</div><div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end"><h3 class="font-bold text-xs text-white truncate">${title}</h3><div class="flex items-center gap-2 mt-0.5"><span class="text-[10px] text-gray-400 font-medium">${escapeHtml(item.year)}</span></div><p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${escapeHtml(item.overview)}</p></div></div></div>`;
+                let kidsBadges = '';
+                if (isKidsMode) {
+                    const entry = SolarfinKids.getEntry(kidsState, id);
+                    kidsBadges = `${ageBadge(item, 'text-[10px] px-1.5 rounded-md')}`
+                        + (entry && entry.seen ? '<i class="fa-solid fa-eye text-[10px] text-sky-300" title="Déjà vu" aria-label="Déjà vu"></i>' : '')
+                        + (entry && entry.liked ? '<i class="fa-solid fa-heart text-[10px] text-pink-500" title="Aimé" aria-label="Aimé"></i>' : '');
+                }
+                const bottomLine = showReason && item.reasonTitle
+                    ? `<p class="text-[10px] text-emerald-300 line-clamp-2 mt-1 leading-tight"><i class="fa-solid fa-wand-magic-sparkles"></i> Parce que tu as aimé ${escapeHtml(item.reasonTitle)}</p>`
+                    : `<p class="text-[10px] text-gray-300 line-clamp-2 mt-1 leading-tight">${escapeHtml(item.overview)}</p>`;
+                return `<div onclick="openDetailModal(${id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailModal(${id});}" class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group spring-active cursor-pointer relative" role="button" tabindex="0" aria-label="Ouvrir ${title}"><div class="relative aspect-[2/3] w-full bg-gray-950 overflow-hidden"><img src="${escapeHtml(item.poster)}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">${platformBadge}<div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-white/10 flex items-center gap-1"><i class="fa-solid fa-star text-[9px]"></i> ${escapeHtml(item.rating)}</div><div class="absolute inset-x-0 bottom-0 poster-gradient p-3 pt-8 flex flex-col justify-end"><h3 class="font-bold text-xs text-white truncate">${title}</h3><div class="flex items-center gap-2 mt-0.5"><span class="text-[10px] text-gray-400 font-medium">${escapeHtml(item.year)}</span>${kidsBadges}</div>${bottomLine}</div></div></div>`;
             }).join('');
+        }
+
+        // --- Onglet Enfants : affichage, catalogue, recommandations, historique ---
+
+        const KIDS_VIEWS = [
+            { id: 'catalogue', label: 'Catalogue', icon: 'fa-film' },
+            { id: 'reco', label: 'Pour toi', icon: 'fa-wand-magic-sparkles' },
+            { id: 'seen', label: 'Déjà vus', icon: 'fa-eye' },
+            { id: 'liked', label: 'Aimés', icon: 'fa-heart' }
+        ];
+        const KIDS_AGE_COLORS = { 3: 'bg-emerald-600', 6: 'bg-sky-600', 9: 'bg-indigo-600', 12: 'bg-purple-600' };
+
+        function kidsChipClass(active) {
+            return `px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${active ? 'bg-accent text-white shadow-md' : 'bg-gray-800/80 text-gray-300 hover:text-white hover:bg-gray-700'}`;
+        }
+
+        function ageBadge(item, sizeClasses) {
+            if (!item.ageBand) return '';
+            const label = `${item.ageBand}+${item.ageEstimated ? '*' : ''}`;
+            const title = item.ageEstimated ? 'Âge estimé (pas de classification officielle)' : `Classification ${item.ageSource || ''}`;
+            return `<span class="${KIDS_AGE_COLORS[item.ageBand] || 'bg-gray-600'} text-white font-bold ${sizeClasses}" title="${escapeHtml(title)}">${label}</span>`;
+        }
+
+        function kidsEmptyMessage() {
+            switch (kidsState.view) {
+                case 'reco': return 'Marque des films avec « J\'aime » pour recevoir des recommandations.';
+                case 'seen': return 'Aucun film marqué comme « Déjà vu » pour l\'instant.';
+                case 'liked': return 'Aucun film aimé pour l\'instant.';
+                default: return 'Aucun film trouvé.';
+            }
+        }
+
+        function initKids() {
+            renderKidsAgeChips();
+            renderKidsViewChips();
+            renderKidsSeedChips();
+        }
+
+        function renderKidsAgeChips() {
+            document.getElementById('kidsAgeContainer').innerHTML = SolarfinKids.AGE_BANDS.map(age => {
+                const active = kidsState.maxAge === age;
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsMaxAge(${age})" class="${kidsChipClass(active)}"><span class="w-2 h-2 rounded-full ${KIDS_AGE_COLORS[age]}"></span> ${age}+</button>`;
+            }).join('');
+        }
+
+        function renderKidsViewChips() {
+            const likedCount = SolarfinKids.listByStatus(kidsState, 'liked').length;
+            const seenCount = SolarfinKids.listByStatus(kidsState, 'seen').length;
+            const counts = { seen: seenCount, liked: likedCount };
+            document.getElementById('kidsViewContainer').innerHTML = KIDS_VIEWS.map(view => {
+                const active = kidsState.view === view.id;
+                const count = counts[view.id] !== undefined ? ` <span class="opacity-70">(${counts[view.id]})</span>` : '';
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsView('${view.id}')" class="${kidsChipClass(active)}"><i class="fa-solid ${view.icon} text-[10px]"></i> ${view.label}${count}</button>`;
+            }).join('');
+        }
+
+        // "Recommandations à partir de" : tous les favoris ou un seul film aimé
+        function renderKidsSeedChips() {
+            const container = document.getElementById('kidsSeedContainer');
+            const liked = SolarfinKids.listByStatus(kidsState, 'liked');
+            if (kidsSeedId !== 'all' && !liked.some(item => item.id === kidsSeedId)) kidsSeedId = 'all';
+            const visible = kidsState.view === 'reco' && liked.length > 0;
+            container.classList.toggle('hidden', !visible);
+            if (!visible) return;
+            const chips = [{ id: 'all', title: 'Tous mes favoris' }, ...liked.slice(0, 15)];
+            container.innerHTML = '<span class="text-[10px] text-gray-500 self-center whitespace-nowrap">À partir de :</span>' + chips.map(chip => {
+                const active = kidsSeedId === chip.id;
+                const arg = chip.id === 'all' ? "'all'" : Number(chip.id);
+                return `<button type="button" aria-pressed="${active}" onclick="setKidsSeed(${arg})" class="${kidsChipClass(active)}">${chip.id === 'all' ? '<i class="fa-solid fa-heart text-[10px]"></i> ' : ''}${escapeHtml(chip.title)}</button>`;
+            }).join('');
+        }
+
+        function persistKidsState() {
+            SolarfinKids.saveState(localStorage, kidsState);
+        }
+
+        function setKidsMaxAge(age) {
+            kidsState.maxAge = age;
+            persistKidsState();
+            renderKidsAgeChips();
+            applyFilters();
+        }
+
+        function setKidsView(view) {
+            kidsState.view = view;
+            persistKidsState();
+            renderKidsViewChips();
+            renderKidsSeedChips();
+            if (view === 'reco' && kidsRecoDirty) refreshKidsRecommendations();
+            else applyFilters();
+        }
+
+        function setKidsSeed(id) {
+            kidsSeedId = id;
+            renderKidsSeedChips();
+            refreshKidsRecommendations();
+        }
+
+        function getKidsViewItems() {
+            switch (kidsState.view) {
+                case 'seen': return SolarfinKids.listByStatus(kidsState, 'seen');
+                case 'liked': return SolarfinKids.listByStatus(kidsState, 'liked');
+                // Un film marqué vu depuis la fiche disparaît tout de suite des recommandations
+                case 'reco': return kidsRecoCache.filter(item => !SolarfinKids.getEntry(kidsState, item.id));
+                default: return mediaCache;
+            }
+        }
+
+        // Retrouve un film affiché, quelle que soit la vue (catalogue, recommandations ou historique)
+        function findItem(id) {
+            const fromCatalogue = mediaCache.find(m => m.id === id);
+            if (fromCatalogue || !isKidsMode) return fromCatalogue;
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            return kidsRecoCache.find(m => m.id === id) || (entry && entry.item);
+        }
+
+        // Exécute fn sur chaque élément avec au plus `limit` requêtes simultanées (pour ménager l'API TMDB)
+        async function mapWithLimit(items, limit, fn) {
+            const results = new Array(items.length);
+            let next = 0;
+            const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+                while (next < items.length) {
+                    const index = next++;
+                    results[index] = await fn(items[index], index);
+                }
+            });
+            await Promise.all(workers);
+            return results;
+        }
+
+        // Une seule requête par film : certifications + mots-clés + plateformes (append_to_response)
+        async function fetchKidsMovieDetails(id) {
+            if (kidsDetailsCache.has(id)) return kidsDetailsCache.get(id);
+            const url = `https://api.themoviedb.org/3/movie/${Number(id)}?api_key=${config.tmdbKey}&language=fr-FR&append_to_response=release_dates,keywords,watch/providers`;
+            const res = await fetchWithRetry(url);
+            const data = await res.json();
+            const genreIds = (data.genres || []).map(g => g.id);
+            const age = SolarfinKids.classifyAge(data.release_dates && data.release_dates.results, genreIds);
+            const providers = (data['watch/providers'] && data['watch/providers'].results && data['watch/providers'].results.FR) || {};
+            const details = {
+                genre_ids: genreIds,
+                ageBand: age.band,
+                ageEstimated: age.estimated,
+                ageSource: age.source,
+                keywordIds: ((data.keywords && data.keywords.keywords) || []).map(k => k.id),
+                platformKeys: mapWatchProvidersToPlatformKeys(providers),
+                voteAverage: Number(data.vote_average) || 0,
+                voteCount: Number(data.vote_count) || 0
+            };
+            kidsDetailsCache.set(id, details);
+            return details;
+        }
+
+        // Ajoute la tranche d'âge à chaque film et retire ceux qui ne sont pas adaptés (ou inclassables)
+        async function classifyKidsItems(items) {
+            const classified = await mapWithLimit(items, 8, async item => {
+                try {
+                    const details = await fetchKidsMovieDetails(item.id);
+                    return { ...item, ...details, primaryPlatformKey: details.platformKeys[0] || null };
+                } catch (e) {
+                    return null;
+                }
+            });
+            return classified.filter(item => item && item.ageBand !== null);
+        }
+
+        async function loadKidsCatalogue() {
+            const grid = document.getElementById('mediaGrid');
+            try {
+                const genres = encodeURIComponent(`${SolarfinKids.GENRE_FAMILY}|${SolarfinKids.GENRE_ANIMATION}`);
+                const excluded = SolarfinKids.NOT_FOR_KIDS_GENRES.join(',');
+                const pages = await Promise.all([1, 2].map(page =>
+                    fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${config.tmdbKey}&language=fr-FR&region=FR&include_adult=false&sort_by=popularity.desc&with_genres=${genres}&without_genres=${excluded}&vote_count.gte=50&page=${page}`)
+                        .then(res => res.json())
+                ));
+                const items = pages.flatMap(data => data.results || []).map(toMediaItem);
+                const unique = [...new Map(items.map(item => [item.id, item])).values()];
+                const classified = await classifyKidsItems(unique);
+                if (!isKidsMode) return; // l'utilisateur a changé d'onglet pendant le chargement
+                mediaCache = classified;
+                kidsRecoDirty = true;
+                if (kidsState.view === 'reco') refreshKidsRecommendations();
+                else applyFilters();
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-red-400">Erreur lors du chargement du catalogue enfants. Vérifiez votre clé API TMDB dans les paramètres.</div>`;
+            }
+        }
+
+        // Candidats = catalogue enfants + recommandations TMDB des films aimés, puis classement par kids.js
+        async function computeKidsRecommendations() {
+            const allLiked = SolarfinKids.listByStatus(kidsState, 'liked');
+            const liked = kidsSeedId === 'all' ? allLiked : allLiked.filter(item => item.id === kidsSeedId);
+            if (!liked.length) return [];
+            const seenIds = new Set(SolarfinKids.listByStatus(kidsState, 'seen').map(item => item.id));
+            const candidates = new Map(mediaCache.map(item => [item.id, item]));
+            const recoSources = new Map();
+
+            const seeds = liked.slice(0, 5); // les 5 films aimés les plus récents
+            const lists = await mapWithLimit(seeds, 5, async seed => {
+                try {
+                    const res = await fetchWithRetry(`https://api.themoviedb.org/3/movie/${Number(seed.id)}/recommendations?api_key=${config.tmdbKey}&language=fr-FR`);
+                    return { seed, results: (await res.json()).results || [] };
+                } catch (e) {
+                    return { seed, results: [] };
+                }
+            });
+            for (const { seed, results } of lists) {
+                for (const result of results) {
+                    if (result.adult) continue;
+                    if (!candidates.has(result.id)) candidates.set(result.id, toMediaItem(result));
+                    recoSources.set(result.id, [...(recoSources.get(result.id) || []), seed.id]);
+                }
+            }
+
+            // Pré-classement sans mots-clés ni âge, pour ne demander les détails TMDB que des 30 meilleurs
+            const profile = SolarfinKids.buildTasteProfile(liked);
+            const shortlist = [...candidates.values()]
+                .filter(c => !seenIds.has(c.id))
+                .map(c => ({ c, score: SolarfinKids.scoreCandidate(c, profile, recoSources.get(c.id), liked.length).score }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 30)
+                .map(entry => entry.c);
+            const alreadyClassified = shortlist.filter(c => c.ageBand !== undefined);
+            const newlyClassified = await classifyKidsItems(shortlist.filter(c => c.ageBand === undefined));
+
+            return SolarfinKids.recommend({
+                candidates: [...alreadyClassified, ...newlyClassified],
+                likedItems: liked,
+                seenIds,
+                recoSources,
+                maxAge: SolarfinKids.MAX_KIDS_AGE // le filtre d'âge choisi est appliqué à l'affichage
+            });
+        }
+
+        async function refreshKidsRecommendations() {
+            if (kidsRecoLoading) return;
+            kidsRecoLoading = true;
+            document.getElementById('mediaGrid').innerHTML = `<div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-accent text-2xl"></i></div>`;
+            try {
+                kidsRecoCache = await computeKidsRecommendations();
+            } catch (err) {
+                console.error(err);
+                kidsRecoCache = [];
+            } finally {
+                kidsRecoDirty = false;
+                kidsRecoLoading = false;
+            }
+            applyFilters();
+        }
+
+        function toggleKidsSeen(id) {
+            const item = findItem(id);
+            if (!item) return;
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            SolarfinKids.setSeen(kidsState, item, !(entry && entry.seen));
+            onKidsHistoryChanged(item);
+        }
+
+        function toggleKidsLiked(id) {
+            const item = findItem(id);
+            if (!item) return;
+            const entry = SolarfinKids.getEntry(kidsState, id);
+            SolarfinKids.setLiked(kidsState, item, !(entry && entry.liked));
+            onKidsHistoryChanged(item);
+        }
+
+        function onKidsHistoryChanged(item) {
+            persistKidsState();
+            // Les recommandations seront recalculées au prochain passage sur "Pour toi"
+            // (pas à chaque clic, pour éviter de recharger la grille pendant qu'on note des films)
+            kidsRecoDirty = true;
+            updateKidsModal(item);
+            renderKidsViewChips();
+            renderKidsSeedChips();
+            applyFilters();
+        }
+
+        function updateKidsModal(item) {
+            const ageEl = document.getElementById('modalAge');
+            const actions = document.getElementById('modalKidsActions');
+            ageEl.classList.toggle('hidden', !isKidsMode || !item.ageBand);
+            actions.classList.toggle('hidden', !isKidsMode);
+            if (!isKidsMode) return;
+
+            ageEl.className = `${item.ageBand ? '' : 'hidden '}px-2 py-0.5 rounded-lg text-white text-xs font-bold ${KIDS_AGE_COLORS[item.ageBand] || 'bg-gray-600'}`;
+            ageEl.innerText = item.ageBand ? `${item.ageBand}+` : '';
+            document.getElementById('modalAgeSource').innerText = item.ageEstimated
+                ? 'Âge estimé d\'après les genres (pas de classification officielle).'
+                : `Classification officielle : ${item.ageSource || 'inconnue'}`;
+
+            const entry = SolarfinKids.getEntry(kidsState, item.id);
+            const seen = Boolean(entry && entry.seen);
+            const liked = Boolean(entry && entry.liked);
+            const seenBtn = document.getElementById('modalSeenBtn');
+            const likedBtn = document.getElementById('modalLikedBtn');
+            const base = 'py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 spring-active border';
+            seenBtn.className = `${base} ${seen ? 'bg-sky-600 border-sky-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:text-white'}`;
+            seenBtn.innerHTML = `<i class="fa-solid ${seen ? 'fa-eye' : 'fa-eye-slash'}"></i> ${seen ? 'Déjà vu' : 'Pas encore vu'}`;
+            seenBtn.setAttribute('aria-pressed', String(seen));
+            seenBtn.setAttribute('onclick', `toggleKidsSeen(${Number(item.id)})`);
+            likedBtn.className = `${base} ${liked ? 'bg-pink-600 border-pink-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:text-white'}`;
+            likedBtn.innerHTML = `<i class="${liked ? 'fa-solid' : 'fa-regular'} fa-heart"></i> ${liked ? 'Aimé' : 'J\'aime'}`;
+            likedBtn.setAttribute('aria-pressed', String(liked));
+            likedBtn.setAttribute('onclick', `toggleKidsLiked(${Number(item.id)})`);
         }
 
         function closeDetailModal() {
@@ -686,7 +1072,7 @@
         }
 
         async function openDetailModal(id) {
-            const item = mediaCache.find(m => m.id === id);
+            const item = findItem(id);
             if (!item) return;
             lastRequestedItem = item;
 
@@ -715,6 +1101,7 @@
             document.getElementById('modalTrailerBtn').setAttribute('onclick', `openTrailer(${Number(item.id)})`);
             document.getElementById('modalRequestBtn').setAttribute('onclick', `sendRequest(${Number(item.id)})`);
 
+            updateKidsModal(item);
             document.getElementById('detailModal').classList.remove('hidden');
 
             // Charger dynamiquement les profils configurés dans Seer/Radarr/Sonarr
@@ -722,7 +1109,7 @@
         }
 
         async function sendRequest(id) {
-            const item = mediaCache.find(m => m.id === id);
+            const item = findItem(id);
             if (!config.serverUrl || !config.serverKey) {
                 alert('Veuillez configurer l\'URL et la clé API Seer dans les paramètres.');
                 openSettings();
