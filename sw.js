@@ -1,8 +1,9 @@
 // Incrémenter la version à chaque déploiement pour purger l'ancien cache
-const CACHE_NAME = 'solarfin-v2';
+const CACHE_NAME = 'solarfin-v3';
 const urlsToCache = [
     './',
     './index.html',
+    './kids.js',
     './manifest.json'
 ];
 

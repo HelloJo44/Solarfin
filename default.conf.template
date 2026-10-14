@@ -22,10 +22,9 @@ server {
         expires 1d;
     }
 
-    # Jamais de cache pour la page, le manifest et le Service Worker : sinon les mises à jour mettent 24 h à arriver
-    location = /index.html    { expires -1; }
-    location = /sw.js         { expires -1; }
-    location = /manifest.json { expires -1; }
+    # Jamais de cache pour la page, les scripts, le manifest et le Service Worker : sinon les mises à jour mettent 24 h à arriver
+    location = /index.html { expires -1; }
+    location ~* \.(?:js|json)$ { expires -1; }
 
     # Reverse proxy vers Seer/Overseerr. SEER_URL est défini dans le fichier .env (non versionné),
     # ce qui évite de publier l'adresse de votre serveur sur GitHub.

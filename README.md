@@ -12,6 +12,7 @@
 - **Sélection dynamique des profils** : Récupère automatiquement vos profils de qualité et de langue configurés dans Seer/Radarr/Sonarr.
 - **Contournement CORS natif** : Intégration d'un reverse proxy Nginx pour un échange fluide avec l'API Seer sans blocage du navigateur.
 - **Mode hors-ligne / PWA** : Support du Service Worker (`sw.js`) pour une installation en tant qu'application sur mobile ou PC.
+- **Onglet Enfants** : Films classés par âge (3+, 6+, 9+, 12+), suivi « Déjà vu » / « J'aime » et recommandations basées sur les films aimés. Voir [docs/ONGLET_ENFANTS.md](./docs/ONGLET_ENFANTS.md).
 
 ---
 
@@ -20,12 +21,21 @@
 ```text
 solarfin/
 ├── index.html              # Application principale (UI et logique JS)
+├── kids.js                 # Onglet Enfants : classification par âge, historique, recommandations
 ├── manifest.json           # Configuration de la PWA
 ├── sw.js                   # Service Worker
 ├── Dockerfile              # Recette de construction de l'image Nginx
 ├── default.conf.template   # Configuration du serveur web et reverse proxy Nginx
 ├── docker-compose.yml      # Lancement du conteneur
-└── .env.example            # Modèle de configuration (à copier en .env)
+├── .env.example            # Modèle de configuration (à copier en .env)
+├── docs/                   # Documentation technique (onglet Enfants)
+└── tests/                  # Tests automatiques (node --test tests/)
+```
+
+Pour lancer les tests (Node.js 18 ou plus, aucune dépendance à installer) :
+
+```bash
+node --test tests/
 ```
 
 ---
